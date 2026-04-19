@@ -1,0 +1,20 @@
+from typing import List, Optional
+from sqlalchemy import String, Boolean
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.database import Base
+from app.models.base import BaseModelMixin
+
+
+class MenuCategory(Base, BaseModelMixin):
+    __tablename__ = "menu_categories"
+
+    name: Mapped[str] = mapped_column(String(100), unique=True, index=True, nullable=False)
+    description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    # Relationships
+    items: Mapped[List["MenuItem"]] = relationship(
+        "MenuItem", 
+        back_populates="category", 
+        cascade="all, delete-orphan"
+    )

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from app.models.base import BaseModelMixin
 from app.models.enums import UserRole
-from backend.app.models.branch import Branch
+
 
 class User(Base, BaseModelMixin):
     __tablename__ = "users"
