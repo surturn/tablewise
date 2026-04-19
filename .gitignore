@@ -1,0 +1,11 @@
+/backend/venv/
+/backend/app/__pycache__/
+.env
+.env.example
+.DS_Store
+__pycache__/
+*.py[cod]
+*$py.class
+# IDE
+.vscode/
+.idea/
