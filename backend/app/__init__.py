@@ -1,0 +1,1 @@
+#initialize app as module
