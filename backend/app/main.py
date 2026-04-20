@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import auth
+from app.routers import auth, branches, menu
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -31,3 +31,5 @@ async def health_check():
 
 # Mount Routers
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
+app.include_router(branches.router, prefix=f"{settings.API_V1_STR}/branches", tags=["Branches"])
+app.include_router(menu.router, prefix=f"{settings.API_V1_STR}/menu", tags=["Menu"])
