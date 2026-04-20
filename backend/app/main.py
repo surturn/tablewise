@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
+from app.routers import auth
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -9,10 +10,9 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS (Open for development, to be restricted in production)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -21,8 +21,7 @@ app.add_middleware(
 @app.get("/health", tags=["Health"])
 async def health_check():
     """
-    Basic health check endpoint to verify the API is running
-    and configuration is loaded.
+    Basic health check endpoint to verify the API is running.
     """
     return {
         "status": "healthy",
@@ -30,4 +29,5 @@ async def health_check():
         "project": settings.PROJECT_NAME
     }
 
-# Future routers will be mounted here
+# Mount Routers
+app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
