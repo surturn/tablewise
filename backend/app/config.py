@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # External APIs
     AT_USERNAME: str = "sandbox"
     AT_API_KEY: str
-    ANTHROPIC_API_KEY: str
+    OPENAI_API_KEY: str
 
     # Pydantic v2 syntax for reading from .env
     model_config = SettingsConfigDict(

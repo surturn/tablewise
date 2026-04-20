@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import auth, branches, menu, inventory, customers, orders, payments
+from app.routers import auth, branches, menu, inventory, customers, orders, payments, analytics
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -34,3 +34,4 @@ app.include_router(inventory.router, prefix=f"{settings.API_V1_STR}/inventory", 
 app.include_router(customers.router, prefix=f"{settings.API_V1_STR}/customers", tags=["Customers"])
 app.include_router(orders.router, prefix=f"{settings.API_V1_STR}/orders", tags=["Orders"])
 app.include_router(payments.router, prefix=f"{settings.API_V1_STR}/payments", tags=["Payments"])
+app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["Analytics & AI"])
