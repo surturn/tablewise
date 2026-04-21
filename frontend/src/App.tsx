@@ -1,17 +1,22 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import AppRouter from './routes/AppRouter';
+
+// Initialize React Query client for server-state caching
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-light">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-brand-dark mb-4">
-          Welcome to <span className="text-brand-orange">TableWise</span>
-        </h1>
-        <p className="text-lg text-gray-600">
-          The frontend is successfully running from scratch!
-        </p>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AppRouter />
+    </QueryClientProvider>
   );
 };
 
