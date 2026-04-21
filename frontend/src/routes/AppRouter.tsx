@@ -12,6 +12,7 @@ import { ProtectedRoute } from '../components/Layout/ProtectedRoute';
 import DashboardLayout from '../components/Layout/DashboardLayout';
 import DashboardHome from '../pages/Dashboard/DashboardHome';
 import OrdersFeed from '../pages/Dashboard/OrdersFeed';
+import InventoryManagement from '../pages/Dashboard/InventoryManagement';
 
 const AppRouter: React.FC = () => {
   return (
@@ -31,7 +32,7 @@ const AppRouter: React.FC = () => {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardHome />} />
             <Route path="orders" element={<OrdersFeed />} />
-            <Route path="inventory" element={<div className="text-gray-500">Inventory page coming soon...</div>} />
+            <Route path="inventory" element={<InventoryManagement />} />
             <Route path="customers" element={<div className="text-gray-500">Customers page coming soon...</div>} />
           </Route>
         </Route>
