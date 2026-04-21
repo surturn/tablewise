@@ -4,8 +4,8 @@ import { ShoppingCart } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 
 const Navbar: React.FC = () => {
-  const cartItems = useCartStore((state) => state.items);
-  const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const { items, toggleCart } = useCartStore();
+  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -24,7 +24,11 @@ const Navbar: React.FC = () => {
           </div>
 
           <div className="flex items-center">
-            <button className="relative p-2 text-gray-600 hover:text-brand-orange transition-colors">
+            {/* Call toggleCart here! */}
+            <button
+              onClick={toggleCart}
+              className="relative p-2 text-gray-600 hover:text-brand-orange transition-colors"
+            >
               <ShoppingCart size={24} />
               {totalItems > 0 && (
                 <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-brand-orange rounded-full">
