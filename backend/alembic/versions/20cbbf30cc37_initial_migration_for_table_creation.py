@@ -33,6 +33,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_branches_id'), 'branches', ['id'], unique=False)
+
     op.create_table('customers',
     sa.Column('phone_number', sa.String(length=20), nullable=False),
     sa.Column('full_name', sa.String(length=100), nullable=False),
@@ -46,6 +47,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_customers_email'), 'customers', ['email'], unique=True)
     op.create_index(op.f('ix_customers_id'), 'customers', ['id'], unique=False)
     op.create_index(op.f('ix_customers_phone_number'), 'customers', ['phone_number'], unique=True)
+
     op.create_table('menu_categories',
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('description', sa.String(length=255), nullable=True),
@@ -57,6 +59,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_menu_categories_id'), 'menu_categories', ['id'], unique=False)
     op.create_index(op.f('ix_menu_categories_name'), 'menu_categories', ['name'], unique=True)
+
     op.create_table('inventory_items',
     sa.Column('branch_id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
@@ -73,6 +76,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_inventory_items_branch_id'), 'inventory_items', ['branch_id'], unique=False)
     op.create_index(op.f('ix_inventory_items_id'), 'inventory_items', ['id'], unique=False)
     op.create_index(op.f('ix_inventory_items_sku'), 'inventory_items', ['sku'], unique=False)
+
     op.create_table('menu_items',
     sa.Column('category_id', sa.UUID(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
@@ -88,6 +92,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_menu_items_id'), 'menu_items', ['id'], unique=False)
     op.create_index(op.f('ix_menu_items_name'), 'menu_items', ['name'], unique=False)
+
     op.create_table('users',
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('hashed_password', sa.String(length=255), nullable=False),
@@ -105,6 +110,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     op.create_index(op.f('ix_users_phone_number'), 'users', ['phone_number'], unique=True)
+
     op.create_table('orders',
     sa.Column('branch_id', sa.UUID(), nullable=False),
     sa.Column('customer_id', sa.UUID(), nullable=False),
@@ -125,6 +131,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_orders_branch_id'), 'orders', ['branch_id'], unique=False)
     op.create_index(op.f('ix_orders_customer_id'), 'orders', ['customer_id'], unique=False)
     op.create_index(op.f('ix_orders_id'), 'orders', ['id'], unique=False)
+
     op.create_table('delivery_tracking',
     sa.Column('order_id', sa.UUID(), nullable=False),
     sa.Column('rider_id', sa.UUID(), nullable=True),
@@ -142,6 +149,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_delivery_tracking_id'), 'delivery_tracking', ['id'], unique=False)
     op.create_index(op.f('ix_delivery_tracking_order_id'), 'delivery_tracking', ['order_id'], unique=True)
     op.create_index(op.f('ix_delivery_tracking_rider_id'), 'delivery_tracking', ['rider_id'], unique=False)
+
     op.create_table('order_items',
     sa.Column('order_id', sa.UUID(), nullable=False),
     sa.Column('menu_item_id', sa.UUID(), nullable=False),
@@ -158,6 +166,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_order_items_id'), 'order_items', ['id'], unique=False)
     op.create_index(op.f('ix_order_items_order_id'), 'order_items', ['order_id'], unique=False)
+
     op.create_table('payments',
     sa.Column('order_id', sa.UUID(), nullable=False),
     sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
@@ -217,4 +226,10 @@ def downgrade() -> None:
     op.drop_table('customers')
     op.drop_index(op.f('ix_branches_id'), table_name='branches')
     op.drop_table('branches')
+
+    # --- MANUAL ADDITION: Clean up PostgreSQL ENUM types ---
+    op.execute("DROP TYPE IF EXISTS userrole CASCADE")
+    op.execute("DROP TYPE IF EXISTS orderstatus CASCADE")
+    op.execute("DROP TYPE IF EXISTS paymentstatus CASCADE")
+    op.execute("DROP TYPE IF EXISTS paymentmethod CASCADE")
     # ### end Alembic commands ###
