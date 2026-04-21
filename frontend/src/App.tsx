@@ -1,8 +1,8 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppRouter from './routes/AppRouter';
+import CartDrawer from './components/Cart/CartDrawer';
 
-// Initialize React Query client for server-state caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -16,6 +16,8 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AppRouter />
+      {/* Mount the CartDrawer globally so it can open from anywhere */}
+      <CartDrawer />
     </QueryClientProvider>
   );
 };
