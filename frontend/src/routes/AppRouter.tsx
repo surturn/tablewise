@@ -1,15 +1,21 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from '../pages/Public/Home';
+import Menu from '../pages/Public/Menu';
+import Navbar from '../components/Layout/Navbar';
 
 const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-
-        {/* Future Routes will be mounted here (e.g., /dashboard, /menu, /checkout) */}
+        <Route path="/" element={
+          <>
+            <Navbar />
+            <Home />
+          </>
+        } />
+        <Route path="/menu" element={<Menu />} />
       </Routes>
     </BrowserRouter>
   );

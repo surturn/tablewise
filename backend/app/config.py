@@ -30,7 +30,8 @@ class Settings(BaseSettings):
 
     # Pydantic v2 syntax for reading from .env
     model_config = SettingsConfigDict(
-        env_file="../.env", # Path relative to the backend directory where we run the app
+        # Changed from "../.env" to ".env" because it's now in the backend root
+        env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore"
     )
