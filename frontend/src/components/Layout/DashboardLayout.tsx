@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingBag, Package, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Package, Users, LogOut, PieChart } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore.ts';
 
 const DashboardLayout: React.FC = () => {
@@ -14,11 +14,12 @@ const DashboardLayout: React.FC = () => {
     navigate('/login');
   };
 
-  const navItems =[
+  const navItems: { name: string; path: string; icon: React.ElementType }[] = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Orders', path: '/dashboard/orders', icon: ShoppingBag },
     { name: 'Inventory', path: '/dashboard/inventory', icon: Package },
     { name: 'Customers', path: '/dashboard/customers', icon: Users },
+    { name: 'Analytics', path: '/dashboard/analytics', icon: PieChart },
   ];
 
   return (
@@ -41,8 +42,8 @@ const DashboardLayout: React.FC = () => {
                   key={item.name}
                   to={item.path}
                   className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    isActive 
-                      ? 'bg-brand-orange text-white' 
+                    isActive
+                      ? 'bg-brand-orange text-white'
                       : 'text-gray-300 hover:bg-gray-800 hover:text-white'
                   }`}
                 >
@@ -79,7 +80,7 @@ const DashboardLayout: React.FC = () => {
           </h1>
         </header>
         <main className="flex-1 overflow-y-auto p-8 bg-gray-50">
-          <Outlet /> {/* This renders the nested dashboard pages */}
+          <Outlet />
         </main>
       </div>
     </div>
