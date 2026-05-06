@@ -1,10 +1,13 @@
 import { apiClient } from './client';
 
-// Helper to handle the entire checkout orchestration
+type PaymentMethod = 'stripe' | 'mobile_money' | 'cash';
+
+// Helper to handle the entire checkout orchestration with Stripe, mobile money, or cash fallback.
 export const processCheckout = async (
   phone_number: string,
   fullName: string,
-  items: any[]
+  items: any[],
+  paymentMethod: PaymentMethod = 'stripe'
 ) => {
   // 1. Get or Create Customer
   const customerRes = await apiClient.post('/customers/', {
@@ -13,10 +16,10 @@ export const processCheckout = async (
   });
   const customerId = customerRes.data.id;
 
-  // 2. Get a Branch (For MVP, just grab the first available branch)
+  // 2. Get an Outlet (For MVP, just grab the first available outlet/legacy branch)
   const branchesRes = await apiClient.get('/branches/');
   if (branchesRes.data.length === 0) {
-    throw new Error("No active branches found. Please contact support.");
+    throw new Error('No active outlets found. Please contact support.');
   }
   const branchId = branchesRes.data[0].id;
 
@@ -29,11 +32,28 @@ export const processCheckout = async (
   });
   const orderId = orderRes.data.id;
 
-  // 4. Trigger M-Pesa STK Push
-  const paymentRes = await apiClient.post('/payments/stk-push', {
-    order_id: orderId,
-    phone_number
-  });
+  // 4. Select payment rail; Stripe is primary, cash/mobile-money keep checkout available.
+  if (paymentMethod === 'stripe') {
+    const paymentRes = await apiClient.post('/payments/stripe/checkout', {
+      order_id: orderId,
+      success_url: `${window.location.origin}/checkout/success?order_id=${orderId}`,
+      cancel_url: `${window.location.origin}/menu?payment=cancelled`,
+    });
+    return paymentRes.data;
+  }
 
+  if (paymentMethod === 'mobile_money') {
+    const paymentRes = await apiClient.post('/payments/mobile-money', {
+      order_id: orderId,
+      phone_number,
+      provider: 'africas_talking',
+    });
+    return paymentRes.data;
+  }
+
+  const paymentRes = await apiClient.post('/payments/cash', {
+    order_id: orderId,
+    collection_note: `Guest checkout for ${fullName}`,
+  });
   return paymentRes.data;
 };
