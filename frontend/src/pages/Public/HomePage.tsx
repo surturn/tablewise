@@ -21,15 +21,15 @@ const HomePage: React.FC = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full mt-20">
         <div className="max-w-2xl">
           <h1 ref={titleRef} className="text-6xl md:text-8xl font-black mb-6 leading-tight">
-            Taste the <br/><span className="text-[#FF6B00]">Future.</span>
+            Grand <br/><span className="text-[#FF6B00]">Platform.</span>
           </h1>
           <p ref={subRef} className="text-xl md:text-2xl text-gray-300 mb-10 font-light">
-            Nairobi's premier multi-branch dining experience. Order online, track in real-time, enjoy instantly.
+            A unified hospitality platform for Juba: rooms, restaurant delivery, bar tabs, offline-first POS, Stripe, cash, and mobile money in USD.
           </p>
           <div ref={btnRef}>
             {/* Make sure this path matches the menu route you previously built */}
             <Link to="/menu" className="inline-block bg-[#FF6B00] text-white font-bold text-lg px-8 py-4 rounded-full shadow-[0_0_20px_rgba(255,107,0,0.4)] hover:bg-[#e66000] transition-transform">
-              Order Now
+              Explore Menu
             </Link>
           </div>
         </div>

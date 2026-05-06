@@ -1,8 +1,11 @@
+import json
 import logging
+
 import africastalking
 from openai import OpenAI
 from app.celery_worker import celery_app
 from app.config import settings
+from app.services.ai_validation import validate_inventory_forecast
 
 logger = logging.getLogger(__name__)
 
@@ -37,29 +40,48 @@ def generate_inventory_forecast(branch_id: str, historical_data_summary: str):
     try:
         if settings.ENVIRONMENT == "development" and settings.OPENAI_API_KEY == "mock_key":
             logger.info(f"[CELERY MOCK AI] Generating forecast for branch {branch_id}")
-            return "Mock AI Suggestion: Stock up on 20kg of Maize Flour and 10L of Cooking Oil for the weekend."
+            forecast = validate_inventory_forecast({
+                "branch_id": branch_id,
+                "horizon_days": 7,
+                "currency": "USD",
+                "recommendations": [
+                    {
+                        "item_name": "Bottled water",
+                        "recommended_quantity": 120,
+                        "unit": "bottles",
+                        "confidence_score": 0.82,
+                        "reason": "Bookings and prior weekend demand indicate higher guest consumption."
+                    }
+                ],
+                "data_quality_notes": ["Mock development forecast; production uses validated order, booking, and inventory data."],
+            })
+            return forecast.model_dump()
 
         client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
         prompt = f"""
-        Based on the following historical sales data summary for branch ID {branch_id}:
+        Based on the following validated sales, booking, and inventory summary for outlet ID {branch_id}:
         {historical_data_summary}
 
-        Provide a concise, bulleted re-order list predicting demand for the next 7 days.
-        Consider local Kenyan consumption patterns (e.g., weekends, month-end).
+        Return JSON only with: branch_id, horizon_days, currency=USD, recommendations, and data_quality_notes.
+        Each recommendation needs item_name, recommended_quantity, unit, confidence_score from 0 to 1, and reason.
+        Flag insufficient or suspicious source data in data_quality_notes instead of inventing values.
         """
 
         # Using the sync client inside Celery
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",  # Can be upgraded to gpt-4 or gpt-4o if needed
+            model="gpt-4o-mini",
+            response_format={"type": "json_object"},
             max_tokens=500,
             messages=[
-                {"role": "system", "content": "You are an expert restaurant inventory manager in Kenya."},
+                {"role": "system", "content": "You are a hospitality inventory analyst for a hotel, restaurant, and bar in Juba, South Sudan. Validate source data and never invent measurements."},
                 {"role": "user", "content": prompt}
             ]
         )
 
-        return response.choices[0].message.content
+        forecast_payload = json.loads(response.choices[0].message.content or "{}")
+        forecast = validate_inventory_forecast(forecast_payload)
+        return forecast.model_dump()
     except Exception as exc:
         logger.error(f"OpenAI API call failed: {exc}")
         return f"AI Forecasting temporarily unavailable: {str(exc)}"
