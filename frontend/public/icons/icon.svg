@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">GrandPlatform icon</title>
+  <desc id="desc">Gold GP monogram on a dark rounded square.</desc>
+  <rect width="512" height="512" rx="96" fill="#121212"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#D6A354" stroke-width="28"/>
+  <path d="M156 278c0-76 52-130 126-130 42 0 78 16 103 45l-35 34c-18-20-39-30-66-30-45 0-76 32-76 81s31 81 78 81c22 0 42-5 59-17v-43h-67v-47h121v117c-31 26-72 40-117 40-74 0-126-54-126-131Z" fill="#D6A354"/>
+  <path d="M154 122h116c64 0 105 35 105 91s-41 91-105 91h-63v84h-53V122Zm111 136c35 0 55-16 55-45s-20-45-55-45h-58v90h58Z" fill="#F4E3BE" opacity="0.86"/>
+</svg>

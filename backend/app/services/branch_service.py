@@ -1,24 +1,22 @@
 import uuid
-from typing import List
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.models.branch import Branch
-from app.schemas.branch import BranchCreate
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.branch import Outlet
+from app.schemas.branch import OutletCreate
 
-async def create_branch(db: AsyncSession, branch_in: BranchCreate) -> Branch:
-    """Creates a new restaurant branch."""
-    db_branch = Branch(**branch_in.model_dump())
-    db.add(db_branch)
+
+async def create_branch(db: AsyncSession, branch_in: OutletCreate) -> Outlet:
+    db_obj = Outlet(**branch_in.model_dump())
+    db.add(db_obj)
     await db.commit()
-    await db.refresh(db_branch)
-    return db_branch
+    await db.refresh(db_obj)
+    return db_obj
 
-async def get_branches(db: AsyncSession) -> List[Branch]:
-    """Retrieves all branches."""
-    result = await db.execute(select(Branch))
+
+async def get_branches(db: AsyncSession) -> list[Outlet]:
+    result = await db.execute(select(Outlet).where(Outlet.is_active.is_(True)))
     return list(result.scalars().all())
 
-async def get_branch(db: AsyncSession, branch_id: uuid.UUID) -> Branch | None:
-    """Retrieves a specific branch by ID."""
-    result = await db.execute(select(Branch).where(Branch.id == branch_id))
-    return result.scalars().first()
+
+async def get_branch(db: AsyncSession, branch_id: uuid.UUID) -> Outlet | None:
+    return await db.get(Outlet, branch_id)

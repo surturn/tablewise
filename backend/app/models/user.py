@@ -15,16 +15,22 @@ class User(Base, BaseModelMixin):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     phone_number: Mapped[str] = mapped_column(String(20), unique=True, index=True, nullable=False)
-    
     role: Mapped[UserRole] = mapped_column(SQLEnum(UserRole), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    
-    # Owner might not belong to a specific branch, hence nullable
-    branch_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True), 
-        ForeignKey("branches.id", ondelete="SET NULL"), 
-        nullable=True
+    outlet_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("outlets.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
-    # Relationships
-    branch: Mapped[Optional["Branch"]] = relationship("Branch", back_populates="users")
+    outlet: Mapped[Optional["Outlet"]] = relationship("Outlet", back_populates="users")
+
+    @property
+    def branch_id(self) -> Optional[uuid.UUID]:
+        return self.outlet_id
+
+    @branch_id.setter
+    def branch_id(self, value: Optional[uuid.UUID]) -> None:
+        self.outlet_id = value
+
+    @property
+    def branch(self):
+        return self.outlet

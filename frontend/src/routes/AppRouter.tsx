@@ -15,6 +15,10 @@ import OrdersFeed from '../pages/Dashboard/OrdersFeed';
 import InventoryManagement from '../pages/Dashboard/InventoryManagement';
 import AnalyticsPage from '../pages/Dashboard/AnalyticsPage';
 import CustomersManagement from '../pages/Dashboard/CustomersManagement';
+import RoomsPage from '../pages/Dashboard/RoomsPage';
+import ReservationsPage from '../pages/Dashboard/ReservationsPage';
+import HousekeepingPage from '../pages/Dashboard/HousekeepingPage';
+import Book from '../pages/Public/Book';
 
 // Create a simple Public Layout wrapper that includes the Outlet
 const PublicLayout = () => (
@@ -33,6 +37,7 @@ const AppRouter: React.FC = () => {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/menu" element={<Menu />} />
+          <Route path="/book" element={<Book />} />
         </Route>
 
         {/* Auth Route without Navbar */}
@@ -46,6 +51,9 @@ const AppRouter: React.FC = () => {
             <Route path="inventory" element={<InventoryManagement />} />
             <Route path="customers" element={<CustomersManagement />} />
             <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="rooms" element={<RoomsPage />} />
+            <Route path="reservations" element={<ReservationsPage />} />
+            <Route path="housekeeping" element={<HousekeepingPage />} />
           </Route>
         </Route>
       </Routes>

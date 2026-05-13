@@ -5,14 +5,15 @@ import { useOrders, useUpdateOrderStatus, Order, OrderItem } from '@/api/orders.
 import { CheckCircle, ChefHat, PackageCheck } from 'lucide-react';
 
 const OrdersFeed: React.FC = () => {
-  const { data: orders, isLoading, error } = useOrders();
+  const { data, isLoading, error } = useOrders();
+  const orders = data?.items ?? [];
   const updateStatus = useUpdateOrderStatus();
 
   if (isLoading) return <div className="text-gray-500">Loading live orders...</div>;
   if (error) return <div className="text-red-500">Failed to load orders.</div>;
 
   // FIX: Explicitly typed 'o' as 'Order'
-  const activeOrders = orders?.filter((o: Order) =>
+  const activeOrders = orders.filter((o: Order) =>
     !['delivered', 'cancelled', 'payment_failed', 'expired', 'created', 'pending_payment'].includes(o.status)
   ) || [];
 
@@ -63,11 +64,11 @@ const OrdersFeed: React.FC = () => {
                         <div>
                           <span className="text-xs font-bold text-gray-400">#{order.id.slice(0, 8)}</span>
                           <div className="font-bold text-gray-800 mt-1">
-                            {order.is_delivery ? <span className="text-brand-orange">Delivery</span> : <span>Pickup</span>}
+                            {order.is_delivery ? <span className="text-brand-orange">Delivery</span> : <span>{order.order_type === 'room_service' ? `ROOM ${order.room_id?.slice(0, 8)}` : order.order_type}</span>}
                           </div>
                         </div>
                         <span className="text-sm font-bold bg-gray-100 px-2 py-1 rounded">
-                          KES {order.total_amount}
+                          USD {(order.total_usd_cents / 100).toFixed(2)}
                         </span>
                       </div>
 
@@ -77,7 +78,7 @@ const OrdersFeed: React.FC = () => {
                           {order.items.map((item: OrderItem) => (
                             <li key={item.id} className="flex justify-between font-medium text-gray-700">
                               <span>{item.quantity}x Item</span>
-                              <span className="text-gray-400">KES {item.subtotal}</span>
+                              <span className="text-gray-400">USD {(item.subtotal_usd_cents / 100).toFixed(2)}</span>
                             </li>
                           ))}
                         </ul>
