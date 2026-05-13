@@ -1,165 +1,178 @@
-import base64
+import json
 import logging
-from datetime import datetime
-import httpx
 import uuid
-from fastapi import HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Any, Optional
+from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+import stripe
 
 from app.config import settings
+from app.models.enums import BookingPaymentStatus, BookingStatus, OrderStatus, PaymentEntityType, PaymentMethod, PaymentStatus
 from app.models.order import Order
 from app.models.payment import Payment
-from app.models.enums import OrderStatus, PaymentStatus, PaymentMethod
-from app.schemas.payment import MpesaWebhookPayload
+from app.models.rooms import Booking
+from app.services.audit_service import write_audit_log
+from app.tasks import deduct_inventory, send_email, send_sms_notification
 
 logger = logging.getLogger(__name__)
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-def format_phone_number(phone: str) -> str:
-    """Formats phone number to the required 2547XXXXXXXX format for Daraja."""
-    cleaned = ''.join(filter(str.isdigit, phone))
-    if cleaned.startswith('0'):
-        return f"254{cleaned[1:]}"
-    if cleaned.startswith('254'):
-        return cleaned
-    if len(cleaned) == 9:
-        return f"254{cleaned}"
-    return cleaned
+async def create_stripe_payment_intent(
+    amount_usd_cents: int,
+    entity_type: str,
+    entity_id: str,
+    customer_email: str,
+    metadata: dict[str, Any],
+) -> stripe.PaymentIntent:
+    if amount_usd_cents <= 0:
+        raise HTTPException(status_code=400, detail="Payment amount must be positive")
+    return await stripe.PaymentIntent.create_async(
+        amount=amount_usd_cents,
+        currency="usd",
+        receipt_email=customer_email,
+        metadata={"entity_type": entity_type, "entity_id": entity_id, **metadata},
+    )
 
 
-async def get_mpesa_access_token() -> str:
-    """Generates the OAuth2 token required for Daraja API requests."""
-    # In sandbox, the auth URL is different from production
-    base_url = "https://sandbox.safaricom.co.ke" if settings.MPESA_ENVIRONMENT == "sandbox" else "https://api.safaricom.co.ke"
-    auth_url = f"{base_url}/oauth/v1/generate?grant_type=client_credentials"
-
-    auth_str = f"{settings.MPESA_CONSUMER_KEY}:{settings.MPESA_CONSUMER_SECRET}"
-    encoded_auth = base64.b64encode(auth_str.encode()).decode()
-
-    headers = {"Authorization": f"Basic {encoded_auth}"}
-
-
-    # Use httpx for async HTTP requests
-    async with httpx.AsyncClient() as client:
-        response = await client.get(auth_url, headers=headers)
-        if response.status_code != 200:
-            logger.error(f"Failed to get M-Pesa token: {response.text}")
-            raise HTTPException(status_code=500, detail="Payment gateway authentication failed")
-        return response.json()["access_token"]
-
-
-async def initiate_stk_push(db: AsyncSession, order_id: uuid.UUID, phone_number: str) -> dict:
-    """Initiates the STK Push prompt on the customer's phone."""
-    # 1. Validate Order
-    result = await db.execute(select(Order).where(Order.id == order_id))
-    order = result.scalars().first()
-
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    if order.status not in [OrderStatus.CREATED, OrderStatus.PAYMENT_FAILED]:
-        raise HTTPException(status_code=400, detail=f"Cannot initiate payment for order in {order.status.value} state")
-
-    formatted_phone = format_phone_number(phone_number)
-    amount = int(order.total_amount)  # M-Pesa expects integer amounts
-
-    # 2. Prepare Daraja Payload
-    token = await get_mpesa_access_token()
-    base_url = "https://sandbox.safaricom.co.ke" if settings.MPESA_ENVIRONMENT == "sandbox" else "https://api.safaricom.co.ke"
-    stk_url = f"{base_url}/mpesa/stkpush/v1/processrequest"
-
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    password_str = f"{settings.MPESA_SHORTCODE}{settings.MPESA_PASSKEY}{timestamp}"
-    password = base64.b64encode(password_str.encode()).decode()
-
-    payload = {
-        "BusinessShortCode": settings.MPESA_SHORTCODE,
-        "Password": password,
-        "Timestamp": timestamp,
-        "TransactionType": "CustomerPayBillOnline",
-        "Amount": amount,
-        "PartyA": formatted_phone,
-        "PartyB": settings.MPESA_SHORTCODE,
-        "PhoneNumber": formatted_phone,
-        "CallBackURL": settings.MPESA_CALLBACK_URL,
-        "AccountReference": str(order.id)[:12],  # Max 12 chars usually recommended
-        "TransactionDesc": "TableWise Order Payment"
-    }
-    headers = {"Authorization": f"Bearer {token}"}
-
-    # 3. Send Request to Safaricom
-    async with httpx.AsyncClient() as client:
-        response = await client.post(stk_url, json=payload, headers=headers)
-
-    response_data = response.json()
-
-    if response.status_code != 200 or response_data.get("ResponseCode") != "0":
-        logger.error(f"STK Push Failed: {response_data}")
-        raise HTTPException(status_code=400, detail="Failed to initiate STK Push. Check phone number.")
-
-    checkout_request_id = response_data["CheckoutRequestID"]
-
-    # 4. Create Pending Payment Record & Update Order
+async def create_payment_intent_for_entity(
+    db: AsyncSession,
+    entity_type: PaymentEntityType,
+    entity_id: uuid.UUID,
+    customer_email: str,
+    metadata: Optional[dict[str, str]] = None,
+) -> dict[str, Any]:
+    amount = await _get_entity_amount(db, entity_type, entity_id)
+    intent = await create_stripe_payment_intent(amount, entity_type.value, str(entity_id), customer_email, metadata or {})
     payment = Payment(
-        order_id=order.id,
-        amount=amount,
-        method=PaymentMethod.MPESA,
-        status=PaymentStatus.PENDING,
-        checkout_request_id=checkout_request_id,
-        payer_phone_number=formatted_phone
+        entity_type=entity_type,
+        entity_id=entity_id,
+        amount_usd_cents=amount,
+        method=PaymentMethod.stripe,
+        status=PaymentStatus.pending,
+        stripe_payment_intent_id=intent.id,
     )
     db.add(payment)
-    order.status = OrderStatus.PENDING_PAYMENT
+    await db.commit()
+    return {"payment_intent_id": intent.id, "client_secret": intent.client_secret, "amount_usd_cents": amount}
+
+
+async def handle_stripe_webhook(db: AsyncSession, payload: bytes, sig_header: str, ip_address: str | None = None) -> dict:
+    try:
+        stripe.WebhookSignature.verify_header(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
+        event = json.loads(payload.decode("utf-8"))
+    except (stripe.error.SignatureVerificationError, ValueError) as exc:
+        logger.warning("Rejected unverified Stripe webhook: %s", exc)
+        await write_audit_log(
+            db,
+            action="stripe_webhook_signature_failed",
+            entity_type="payment_webhook",
+            new_value={"error": str(exc)},
+            ip_address=ip_address,
+        )
+        await db.commit()
+        raise HTTPException(status_code=400, detail="Invalid webhook signature") from exc
+
+    event_type = event.get("type")
+    payment_intent = event.get("data", {}).get("object", {})
+    if event_type == "payment_intent.succeeded":
+        await handle_payment_success(db, payment_intent)
+    elif event_type == "payment_intent.payment_failed":
+        await handle_payment_failure(db, payment_intent)
+    return {"received": True}
+
+
+async def handle_payment_success(db: AsyncSession, payment_intent: dict[str, Any]) -> None:
+    metadata = payment_intent.get("metadata") or {}
+    entity_type = PaymentEntityType(metadata.get("entity_type"))
+    entity_id = uuid.UUID(metadata.get("entity_id"))
+    payment = await _get_payment(db, payment_intent.get("id"), entity_type, entity_id)
+    if payment and payment.status == PaymentStatus.success:
+        return
+
+    charge = _latest_charge(payment_intent)
+    if payment is None:
+        payment = Payment(
+            entity_type=entity_type,
+            entity_id=entity_id,
+            amount_usd_cents=int(payment_intent["amount"]),
+            method=PaymentMethod.stripe,
+            stripe_payment_intent_id=payment_intent.get("id"),
+        )
+        db.add(payment)
+    payment.status = PaymentStatus.success
+    payment.stripe_charge_id = charge.get("id") if charge else None
+    payment.receipt_url = charge.get("receipt_url") if charge else None
+
+    if entity_type == PaymentEntityType.order:
+        order = await db.get(Order, entity_id)
+        if order:
+            order.status = OrderStatus.PAID
+            deduct_inventory.delay(str(order.id))
+            await write_audit_log(db, "order_paid", "order", order.id, new_value={"status": order.status.value})
+    else:
+        booking = await db.get(Booking, entity_id)
+        if booking:
+            booking.status = BookingStatus.confirmed
+            booking.payment_status = BookingPaymentStatus.paid
+            booking.stripe_payment_intent_id = payment_intent.get("id")
+            send_email.delay(str(booking.id), "booking_confirmation")
+            await write_audit_log(db, "booking_confirmed", "booking", booking.id, new_value={"status": booking.status.value})
+    await db.commit()
+
+
+async def handle_payment_failure(db: AsyncSession, payment_intent: dict[str, Any]) -> None:
+    metadata = payment_intent.get("metadata") or {}
+    entity_type = PaymentEntityType(metadata.get("entity_type"))
+    entity_id = uuid.UUID(metadata.get("entity_id"))
+    payment = await _get_payment(db, payment_intent.get("id"), entity_type, entity_id)
+    if payment:
+        payment.status = PaymentStatus.failed
+    if entity_type == PaymentEntityType.order:
+        order = await db.get(Order, entity_id)
+        if order:
+            order.status = OrderStatus.PAYMENT_FAILED
+    await write_audit_log(db, "payment_failed", entity_type.value, entity_id, new_value={"stripe_payment_intent_id": payment_intent.get("id")})
+    await db.commit()
+
+
+async def mark_paid_cash(db: AsyncSession, entity_type: PaymentEntityType, entity_id: uuid.UUID, user_id: uuid.UUID) -> Payment:
+    amount = await _get_entity_amount(db, entity_type, entity_id)
+    payment = Payment(entity_type=entity_type, entity_id=entity_id, amount_usd_cents=amount, method=PaymentMethod.cash, status=PaymentStatus.success)
+    db.add(payment)
+    if entity_type == PaymentEntityType.order:
+        order = await db.get(Order, entity_id)
+        if order:
+            order.status = OrderStatus.PAID
+            deduct_inventory.delay(str(order.id))
+    else:
+        booking = await db.get(Booking, entity_id)
+        if booking:
+            booking.status = BookingStatus.confirmed
+            booking.payment_status = BookingPaymentStatus.paid
+    await write_audit_log(db, "cash_payment_marked_paid", entity_type.value, entity_id, user_id=user_id, new_value={"amount_usd_cents": amount})
     await db.commit()
     await db.refresh(payment)
-
-    return {
-        "message": "STK Push initiated successfully. Please enter PIN on your phone.",
-        "checkout_request_id": checkout_request_id
-    }
+    return payment
 
 
-async def process_mpesa_webhook(db: AsyncSession, payload: MpesaWebhookPayload) -> dict:
-    """Processes the asynchronous callback from Safaricom."""
-    stk_callback = payload.Body.stkCallback
-    checkout_request_id = stk_callback.CheckoutRequestID
-    result_code = stk_callback.ResultCode
+async def _get_entity_amount(db: AsyncSession, entity_type: PaymentEntityType, entity_id: uuid.UUID) -> int:
+    entity = await db.get(Order if entity_type == PaymentEntityType.order else Booking, entity_id)
+    if not entity:
+        raise HTTPException(status_code=404, detail=f"{entity_type.value} not found")
+    return entity.total_usd_cents
 
-    # 1. Find the payment by checkout_request_id
-    result = await db.execute(select(Payment).where(Payment.checkout_request_id == checkout_request_id))
+
+async def _get_payment(db: AsyncSession, intent_id: str, entity_type: PaymentEntityType, entity_id: uuid.UUID) -> Payment | None:
+    result = await db.execute(select(Payment).where(Payment.stripe_payment_intent_id == intent_id))
     payment = result.scalars().first()
+    if payment:
+        return payment
+    result = await db.execute(select(Payment).where(Payment.entity_type == entity_type, Payment.entity_id == entity_id, Payment.method == PaymentMethod.stripe))
+    return result.scalars().first()
 
-    if not payment:
-        logger.warning(f"Webhook received for unknown CheckoutRequestID: {checkout_request_id}")
-        return {"status": "ignored", "reason": "Payment not found"}
 
-    # Idempotency check: If already processed, return success immediately
-    if payment.status in [PaymentStatus.SUCCESS, PaymentStatus.FAILED]:
-        return {"status": "success", "message": "Already processed"}
-
-    # Fetch associated order
-    order_result = await db.execute(select(Order).where(Order.id == payment.order_id))
-    order = order_result.scalars().first()
-
-    # 2. Process Result (0 means Success in Daraja)
-    if result_code == 0:
-        payment.status = PaymentStatus.SUCCESS
-        order.status = OrderStatus.PAID
-
-        # Extract MpesaReceiptNumber from metadata
-        if stk_callback.CallbackMetadata:
-            for item in stk_callback.CallbackMetadata.Item:
-                if item.Name == "MpesaReceiptNumber":
-                    payment.mpesa_receipt_number = item.Value
-    else:
-        # User cancelled, timed out, insufficient funds, etc.
-        payment.status = PaymentStatus.FAILED
-        order.status = OrderStatus.PAYMENT_FAILED
-        logger.info(f"Payment failed: {stk_callback.ResultDesc}")
-
-    await db.commit()
-
-    # Note: In Step 14 (Inventory mapping), this is where we would trigger the Celery
-    # task to finalize inventory deduction permanently.
-
-    return {"status": "success", "message": "Webhook processed successfully"}
+def _latest_charge(payment_intent: dict[str, Any]) -> dict[str, Any] | None:
+    charges = payment_intent.get("charges", {}).get("data") or []
+    return charges[0] if charges else None

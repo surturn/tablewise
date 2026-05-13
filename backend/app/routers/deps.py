@@ -1,4 +1,5 @@
 from typing import List, Callable
+import uuid
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +16,9 @@ from app.schemas.token import TokenPayload
 # OAuth2 scheme configures Swagger UI to send tokens automatically
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login"
+)
+optional_oauth2 = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/auth/login", auto_error=False
 )
 
 
@@ -42,13 +46,26 @@ async def get_current_user(
         raise credentials_exception
 
     # Query the user from the DB to ensure they still exist
-    result = await db.execute(select(User).where(User.id == token_data.sub))
+    result = await db.execute(select(User).where(User.id == uuid.UUID(token_data.sub)))
     user = result.scalars().first()
 
     if not user:
         raise credentials_exception
 
     return user
+
+
+async def get_optional_current_user(
+        db: AsyncSession = Depends(get_db),
+        token: str | None = Depends(optional_oauth2)
+) -> User | None:
+    if not token:
+        return None
+    payload = decode_access_token(token)
+    if payload is None or payload.get("sub") is None:
+        return None
+    result = await db.execute(select(User).where(User.id == uuid.UUID(payload["sub"])))
+    return result.scalars().first()
 
 
 async def get_current_active_user(
@@ -63,7 +80,7 @@ async def get_current_active_user(
 def require_roles(allowed_roles: List[UserRole]) -> Callable:
     """
     Dependency factory for RBAC (Role-Based Access Control).
-    Usage: Depends(require_roles([UserRole.OWNER, UserRole.BRANCH_MANAGER]))
+    Usage: Depends(require_roles([UserRole.owner, UserRole.restaurant_manager]))
     """
 
     async def role_checker(current_user: User = Depends(get_current_active_user)) -> User:

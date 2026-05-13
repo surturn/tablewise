@@ -1,19 +1,21 @@
 from celery import Celery
 from app.config import settings
 
-# Initialize Celery app connected to our Redis instance
-celery_app = Celery(
-    "tablewise_tasks",
-    broker=settings.REDIS_URL,
-    backend=settings.REDIS_URL
-)
+celery_app = Celery("grandplatform_tasks", broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND)
 
-# Configure Celery to use JSON securely
 celery_app.conf.update(
     task_serializer="json",
     accept_content=["json"],
     result_serializer="json",
-    timezone="Africa/Nairobi",
+    timezone="Africa/Juba",
     enable_utc=True,
-    broker_connection_retry_on_startup=True
+    broker_connection_retry_on_startup=True,
+    task_routes={
+        "app.tasks.send_sms_notification": {"queue": "sms"},
+        "app.tasks.send_email": {"queue": "sms"},
+        "app.tasks.generate_inventory_forecast": {"queue": "ai_tasks"},
+        "app.tasks.deduct_inventory": {"queue": "default"},
+        "app.tasks.schedule_housekeeping": {"queue": "default"},
+    },
+    task_queue_max_priority={"sms": 10, "default": 5, "ai_tasks": 1},
 )
