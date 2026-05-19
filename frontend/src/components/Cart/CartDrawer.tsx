@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, CreditCard, Banknote, Smartphone } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { processCheckout } from '../../api/checkout';
 
@@ -9,6 +9,7 @@ const CartDrawer: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const[isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'mobile_money' | 'cash'>('stripe');
   const [statusMsg, setStatusMsg] = useState<{type: 'error'|'success', text: string} | null>(null);
 
   const handleCheckout = async () => {
@@ -112,6 +113,23 @@ const CartDrawer: React.FC = () => {
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-brand-orange"
               />
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'stripe', label: 'Card', icon: CreditCard },
+                  { id: 'mobile_money', label: 'Mobile', icon: Smartphone },
+                  { id: 'cash', label: 'Cash', icon: Banknote },
+                ].map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setPaymentMethod(id as 'stripe' | 'mobile_money' | 'cash')}
+                    className={`border rounded p-3 text-sm font-semibold flex flex-col items-center gap-1 ${paymentMethod === id ? 'border-brand-orange text-brand-orange bg-orange-50' : 'border-gray-200 text-gray-600 bg-white'}`}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </button>
+                ))}
+              </div>
               <button
                 onClick={handleCheckout}
                 disabled={isLoading}
