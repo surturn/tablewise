@@ -1,7 +1,12 @@
 import uuid
+from typing import Optional
 from pydantic import BaseModel, ConfigDict
+from app.models.enums import OutletType
 
-class BranchBase(BaseModel):
+
+class OutletBase(BaseModel):
+    property_id: Optional[uuid.UUID] = None
+    type: OutletType = OutletType.restaurant
     name: str
     location: str
     contact_number: str
@@ -9,13 +14,15 @@ class BranchBase(BaseModel):
     opening_time: str = "08:00"
     closing_time: str = "22:00"
 
-class BranchCreate(BranchBase):
-    """Schema for creating a new branch."""
+
+class OutletCreate(OutletBase):
     pass
 
-class BranchResponse(BranchBase):
-    """Schema for returning branch data (includes generated ID)."""
-    id: uuid.UUID
 
-    # Pydantic v2 syntax to allow reading from SQLAlchemy ORM models
+class OutletResponse(OutletBase):
+    id: uuid.UUID
     model_config = ConfigDict(from_attributes=True)
+
+
+BranchCreate = OutletCreate
+BranchResponse = OutletResponse

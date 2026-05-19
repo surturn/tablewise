@@ -1,66 +1,38 @@
 import uuid
-from typing import Any, Dict, List, Optional
-
-from pydantic import BaseModel, Field, HttpUrl
-
-
-class STKPushRequest(BaseModel):
-    order_id: uuid.UUID
-    phone_number: str = Field(..., description="Phone number to receive the mobile-money prompt.")
+from typing import Any, Dict, Optional
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from app.models.enums import PaymentEntityType, PaymentMethod, PaymentStatus
 
 
-class StripeCheckoutRequest(BaseModel):
-    order_id: uuid.UUID
-    success_url: HttpUrl
-    cancel_url: HttpUrl
+class PaymentIntentRequest(BaseModel):
+    entity_type: PaymentEntityType
+    entity_id: uuid.UUID
+    customer_email: EmailStr
+    metadata: Dict[str, str] = Field(default_factory=dict)
 
 
-class MobileMoneyRequest(BaseModel):
-    order_id: uuid.UUID
-    phone_number: str = Field(..., description="South Sudan/East Africa mobile number to receive a payment prompt.")
-    provider: str = Field("africas_talking", description="Configured mobile-money provider, e.g. africas_talking or mpesa.")
+class PaymentIntentResponse(BaseModel):
+    payment_intent_id: str
+    client_secret: str
+    amount_usd_cents: int
 
 
-class CashPaymentRequest(BaseModel):
-    order_id: uuid.UUID
-    collection_note: Optional[str] = Field(None, description="Optional till, rider, room, or table reference for reconciliation.")
+class CashMarkPaidResponse(BaseModel):
+    entity_id: uuid.UUID
+    entity_type: PaymentEntityType
+    status: PaymentStatus
+    method: PaymentMethod
+    audit_logged: bool
 
 
 class PaymentResponse(BaseModel):
     id: uuid.UUID
-    order_id: uuid.UUID
-    status: str
-    message: str
-
-
-# M-Pesa Webhook Schemas (legacy compatibility for Safaricom/Daraja payloads)
-class MpesaCallbackItem(BaseModel):
-    Name: str
-    Value: Optional[Any] = None
-
-
-class MpesaCallbackMetadata(BaseModel):
-    Item: List[MpesaCallbackItem]
-
-
-class MpesaStkCallback(BaseModel):
-    MerchantRequestID: str
-    CheckoutRequestID: str
-    ResultCode: int
-    ResultDesc: str
-    CallbackMetadata: Optional[MpesaCallbackMetadata] = None
-
-
-class MpesaWebhookBody(BaseModel):
-    stkCallback: MpesaStkCallback
-
-
-class MpesaWebhookPayload(BaseModel):
-    Body: MpesaWebhookBody
-
-
-class GenericPaymentWebhook(BaseModel):
-    provider: str
-    reference: str
-    status: str
-    raw_payload: Dict[str, Any] = Field(default_factory=dict)
+    entity_type: PaymentEntityType
+    entity_id: uuid.UUID
+    amount_usd_cents: int
+    method: PaymentMethod
+    status: PaymentStatus
+    stripe_payment_intent_id: Optional[str] = None
+    stripe_charge_id: Optional[str] = None
+    receipt_url: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)

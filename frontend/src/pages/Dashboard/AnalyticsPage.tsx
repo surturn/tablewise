@@ -38,7 +38,7 @@ const AnalyticsPage: React.FC = () => {
   });
 
   const handleGenerateForecast = () => {
-    // Generate a simple summary string based on our mock data to send to OpenAI
+    // Generate a simple summary string based on our mock data to send to Claude
     const totalSales = mockSalesData.reduce((acc, curr) => acc + curr.sales, 0);
     const summary = `Last 7 days total sales: ${totalSales} KES. Peak days were Friday and Saturday. Top selling items were Nyama Choma and Pilau.`;
 
@@ -117,7 +117,7 @@ const AnalyticsPage: React.FC = () => {
               <h2 className="text-lg font-semibold">AI Inventory Forecaster</h2>
             </div>
             <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-              TableWise uses OpenAI to analyze your recent sales trends, local events, and historical data to predict exactly what you need to restock for the upcoming week.
+              GrandPlatform uses Claude to analyze your recent sales trends, local events, and historical data to predict exactly what you need to restock for the upcoming week.
             </p>
 
             {aiMessage && (

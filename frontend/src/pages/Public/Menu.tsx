@@ -1,19 +1,26 @@
 import React from 'react';
 import { useMenuItems } from '../../api/menu';
+import { useQuery } from '@tanstack/react-query';
+import { fetchBranches } from '../../api/branches';
 import { useCartStore } from '../../store/cartStore';
 import Navbar from '../../components/Layout/Navbar';
 
 const Menu: React.FC = () => {
-  const { data: menuItems, isLoading, error } = useMenuItems();
+  const { data: outlets = [] } = useQuery({ queryKey: ['outlets'], queryFn: fetchBranches });
+  const selectedOutletId = outlets[0]?.id;
+  const { data: menuItems, isLoading, error } = useMenuItems(selectedOutletId);
   const addItem = useCartStore((state) => state.addItem);
+  const setBranch = useCartStore((state) => state.setBranch);
 
   const handleAddToCart = (item: any) => {
     addItem({
       menu_item_id: item.id,
       name: item.name,
-      price: item.price,
+      price: item.price_usd_cents / 100,
       quantity: 1,
+      outlet_id: selectedOutletId,
     });
+    if (selectedOutletId) setBranch(selectedOutletId);
   };
 
   return (
@@ -23,7 +30,7 @@ const Menu: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-3xl font-bold text-brand-dark mb-8">Our Menu</h1>
 
-        {isLoading && <p className="text-gray-500 text-center">Loading menu...</p>}
+        {isLoading && <p className="text-gray-500 text-center">Select an outlet to load the GrandPlatform menu...</p>}
         {error && <p className="text-red-500 text-center">Failed to load menu. Is the backend running?</p>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -44,7 +51,7 @@ const Menu: React.FC = () => {
                 </p>
 
                 <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xl font-bold text-brand-orange">KES {item.price}</span>
+                  <span className="text-xl font-bold text-brand-orange">USD {(item.price_usd_cents / 100).toFixed(2)}</span>
                   <button
                     onClick={() => handleAddToCart(item)}
                     className="px-4 py-2 bg-brand-dark text-white text-sm font-medium rounded hover:bg-brand-orange transition-colors"
