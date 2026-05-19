@@ -16,6 +16,7 @@ async def create_payment_intent(request: PaymentIntentRequest, db: AsyncSession 
     return await payment_service.create_payment_intent_for_entity(db, request.entity_type, request.entity_id, request.customer_email, request.metadata)
 
 
+
 @router.post("/webhook", status_code=status.HTTP_200_OK)
 async def stripe_webhook(request: Request, stripe_signature: str = Header(..., alias="Stripe-Signature"), db: AsyncSession = Depends(get_db)):
     payload = await request.body()

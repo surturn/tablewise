@@ -26,4 +26,7 @@ def test_mock_ai_forecast_task(monkeypatch):
 
     result = generate_inventory_forecast("branch-uuid-123", "Sold 50 burgers yesterday.")
 
-    assert "Mock AI Suggestion" in result
+    assert result["currency"] == "USD"
+    assert result["horizon_days"] == 7
+    assert result["recommendations"][0]["confidence_score"] >= settings.AI_MIN_CONFIDENCE_SCORE
+    assert result["data_quality_notes"]

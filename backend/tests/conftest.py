@@ -19,12 +19,15 @@ engine = create_async_engine(settings.DATABASE_URL, future=True, echo=False)
 TestingSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session")
 async def setup_test_db():
-    """Create all tables before testing, drop them after."""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+    """Create all tables for DB-backed tests, or skip them when Postgres is unavailable."""
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+    except OSError as exc:
+        pytest.skip(f"PostgreSQL test database is unavailable: {exc}", allow_module_level=True)
     yield
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -32,7 +35,7 @@ async def setup_test_db():
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
+async def db_session(setup_test_db) -> AsyncGenerator[AsyncSession, None]:
     """Provide a transactional database session for each test."""
     async with TestingSessionLocal() as session:
         yield session
