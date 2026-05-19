@@ -18,10 +18,14 @@ class Payment(Base, BaseModelMixin):
     method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod), nullable=False)
     status: Mapped[PaymentStatus] = mapped_column(SQLEnum(PaymentStatus), default=PaymentStatus.PENDING)
     
-    # Idempotency and Tracing for M-Pesa
+    # Idempotency and tracing for Stripe, mobile-money aggregators, and legacy M-Pesa callbacks
     checkout_request_id: Mapped[Optional[str]] = mapped_column(String(100), unique=True, index=True, nullable=True)
     mpesa_receipt_number: Mapped[Optional[str]] = mapped_column(String(50), unique=True, index=True, nullable=True)
     payer_phone_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    stripe_checkout_session_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    mobile_money_provider: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    external_reference: Mapped[Optional[str]] = mapped_column(String(255), index=True, nullable=True)
 
     # Relationships
     order: Mapped["Order"] = relationship("Order", back_populates="payment")

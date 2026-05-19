@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, CreditCard, Banknote, Smartphone } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { processCheckout } from '../../api/checkout';
 
@@ -9,11 +9,12 @@ const CartDrawer: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const[isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'mobile_money' | 'cash'>('stripe');
   const [statusMsg, setStatusMsg] = useState<{type: 'error'|'success', text: string} | null>(null);
 
   const handleCheckout = async () => {
     if (!phone || !name) {
-      setStatusMsg({ type: 'error', text: 'Please enter your name and M-Pesa number.' });
+      setStatusMsg({ type: 'error', text: 'Please enter your name and phone number.' });
       return;
     }
 
@@ -21,8 +22,12 @@ const CartDrawer: React.FC = () => {
     setStatusMsg(null);
 
     try {
-      await processCheckout(phone, name, items);
-      setStatusMsg({ type: 'success', text: 'M-Pesa prompt sent! Please check your phone to enter your PIN.' });
+      const result = await processCheckout(phone, name, items, paymentMethod);
+      if (result.checkout_url) {
+        window.location.href = result.checkout_url;
+        return;
+      }
+      setStatusMsg({ type: 'success', text: result.message || 'Order placed. Payment instructions are confirmed.' });
       setTimeout(() => {
         clearCart();
         closeCart();
@@ -67,7 +72,7 @@ const CartDrawer: React.FC = () => {
               <div key={item.menu_item_id} className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
                 <div>
                   <h4 className="font-semibold">{item.name}</h4>
-                  <p className="text-brand-orange text-sm font-bold">KES {item.price}</p>
+                  <p className="text-brand-orange text-sm font-bold">USD {item.price}</p>
                 </div>
                 <div className="flex items-center gap-3 bg-white border rounded-md p-1">
                   <button onClick={() => updateQuantity(item.menu_item_id, item.quantity - 1)} className="p-1 hover:bg-gray-100 rounded">
@@ -88,7 +93,7 @@ const CartDrawer: React.FC = () => {
           <div className="border-t p-4 bg-gray-50 space-y-4">
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
-              <span className="text-brand-orange">KES {getTotal()}</span>
+              <span className="text-brand-orange">USD {getTotal()}</span>
             </div>
 
             {statusMsg && (
@@ -107,17 +112,34 @@ const CartDrawer: React.FC = () => {
               />
               <input
                 type="tel"
-                placeholder="M-Pesa Number (e.g., 0712345678)"
+                placeholder="Phone Number (SMS/payment updates)"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full border p-3 rounded focus:outline-none focus:ring-2 focus:ring-brand-orange"
               />
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 'stripe', label: 'Card', icon: CreditCard },
+                  { id: 'mobile_money', label: 'Mobile', icon: Smartphone },
+                  { id: 'cash', label: 'Cash', icon: Banknote },
+                ].map(({ id, label, icon: Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setPaymentMethod(id as 'stripe' | 'mobile_money' | 'cash')}
+                    className={`border rounded p-3 text-sm font-semibold flex flex-col items-center gap-1 ${paymentMethod === id ? 'border-brand-orange text-brand-orange bg-orange-50' : 'border-gray-200 text-gray-600 bg-white'}`}
+                  >
+                    <Icon size={18} />
+                    {label}
+                  </button>
+                ))}
+              </div>
               <button
                 onClick={handleCheckout}
                 disabled={isLoading}
                 className="w-full bg-brand-dark hover:bg-black text-white font-bold py-4 rounded transition-colors disabled:opacity-70 flex justify-center items-center"
               >
-                {isLoading ? 'Processing...' : 'Pay with M-Pesa'}
+                {isLoading ? 'Processing...' : paymentMethod === 'stripe' ? 'Pay with Card' : paymentMethod === 'mobile_money' ? 'Pay with Mobile Money' : 'Place Cash Order'}
               </button>
             </div>
           </div>

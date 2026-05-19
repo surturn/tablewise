@@ -27,6 +27,8 @@ class PaymentStatus(str, enum.Enum):
     REVERSED = "reversed"
 
 class PaymentMethod(str, enum.Enum):
-    MPESA = "mpesa"
+    MPESA = "mpesa"  # Legacy alias for existing webhook compatibility
+    MOBILE_MONEY = "mobile_money"
+    STRIPE = "stripe"
     CARD = "card"
     CASH = "cash"
