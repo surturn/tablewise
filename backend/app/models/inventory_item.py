@@ -10,24 +10,23 @@ from app.models.base import BaseModelMixin
 class InventoryItem(Base, BaseModelMixin):
     __tablename__ = "inventory_items"
 
-    # Inventory is strictly scoped per branch
-    branch_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), 
-        ForeignKey("branches.id", ondelete="CASCADE"), 
-        nullable=False,
-        index=True
-    )
+    outlet_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("outlets.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     sku: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, index=True)
-    
-    # Current physical stock
     quantity: Mapped[float] = mapped_column(Numeric(10, 2), default=0.0)
-    
-    # E.g., 'kg', 'liters', 'pieces'
-    unit: Mapped[str] = mapped_column(String(20), nullable=False) 
-    
-    # Threshold to trigger Celery low-stock alerts
+    unit: Mapped[str] = mapped_column(String(20), nullable=False)
     low_stock_threshold: Mapped[float] = mapped_column(Numeric(10, 2), default=10.0)
 
-    # Relationships
-    branch: Mapped["Branch"] = relationship("Branch")
+    outlet: Mapped["Outlet"] = relationship("Outlet")
+
+    @property
+    def branch_id(self) -> uuid.UUID:
+        return self.outlet_id
+
+    @branch_id.setter
+    def branch_id(self, value: uuid.UUID) -> None:
+        self.outlet_id = value
+
+    @property
+    def branch(self):
+        return self.outlet

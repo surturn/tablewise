@@ -1,7 +1,8 @@
 import uuid
 from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, model_validator
 from app.models.enums import UserRole
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -9,15 +10,19 @@ class UserBase(BaseModel):
     phone_number: str
     role: UserRole
     is_active: bool = True
-    branch_id: Optional[uuid.UUID] = None
+    outlet_id: Optional[uuid.UUID] = None
+
+    @model_validator(mode="after")
+    def validate_outlet_for_staff(self):
+        if self.role not in [UserRole.owner, UserRole.hotel_manager] and self.outlet_id is None:
+            raise ValueError("outlet_id is required for outlet-scoped staff roles")
+        return self
+
 
 class UserCreate(UserBase):
-    """Schema for creating a new user. Includes plaintext password."""
     password: str
 
-class UserResponse(UserBase):
-    """Schema for returning user data (never includes password!)."""
-    id: uuid.UUID
 
-    # Pydantic v2 syntax to allow reading from SQLAlchemy ORM models
+class UserResponse(UserBase):
+    id: uuid.UUID
     model_config = ConfigDict(from_attributes=True)

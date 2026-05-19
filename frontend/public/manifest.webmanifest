@@ -1,0 +1,11 @@
+{
+  "name": "GrandPlatform Hospitality Management",
+  "short_name": "GrandPlatform",
+  "description": "Hotel, restaurant, bar, and room booking management for Grand Hotel Juba.",
+  "theme_color": "#121212",
+  "background_color": "#121212",
+  "display": "standalone",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -9,19 +9,7 @@ router = APIRouter()
 
 
 @router.post("/forecast", response_model=TaskResponse, status_code=status.HTTP_202_ACCEPTED)
-async def request_demand_forecast(
-        request: ForecastRequest,
-        current_user: User = Depends(require_roles([UserRole.OWNER, UserRole.BRANCH_MANAGER]))
-):
-    """
-    Trigger an AI-driven inventory demand forecast.
-    Because AI generation takes time, this returns a task ID immediately,
-    while Claude processes the data in the background via Celery.
-    """
-    # .delay() is how we send the task to Redis/Celery
-    task = generate_inventory_forecast.delay(str(request.branch_id), request.historical_data_summary)
-
-    return {
-        "task_id": task.id,
-        "message": "AI Forecast generation has been queued successfully."
-    }
+async def request_demand_forecast(request: ForecastRequest, current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.restaurant_manager, UserRole.bartender]))):
+    outlet_id = current_user.outlet_id if current_user.role not in [UserRole.owner, UserRole.hotel_manager] and current_user.outlet_id else request.branch_id
+    task = generate_inventory_forecast.delay(str(outlet_id), request.historical_data_summary)
+    return {"task_id": task.id, "message": "GrandPlatform AI forecast generation has been queued successfully."}

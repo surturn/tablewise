@@ -1,11 +1,57 @@
 import enum
 
+
 class UserRole(str, enum.Enum):
+    owner = "owner"
+    hotel_manager = "hotel_manager"
+    restaurant_manager = "restaurant_manager"
+    receptionist = "receptionist"
+    chef = "chef"
+    bartender = "bartender"
+    waiter = "waiter"
+    rider = "rider"
+
+    # Backward-compatible aliases used by older code paths/tests.
     OWNER = "owner"
-    BRANCH_MANAGER = "branch_manager"
-    CASHIER = "cashier"
+    BRANCH_MANAGER = "restaurant_manager"
+    CASHIER = "receptionist"
     CHEF = "chef"
     RIDER = "rider"
+
+
+class OutletType(str, enum.Enum):
+    restaurant = "restaurant"
+    bar = "bar"
+
+
+class RoomStatus(str, enum.Enum):
+    available = "available"
+    occupied = "occupied"
+    cleaning = "cleaning"
+    maintenance = "maintenance"
+
+
+class BookingStatus(str, enum.Enum):
+    pending = "pending"
+    confirmed = "confirmed"
+    checked_in = "checked_in"
+    checked_out = "checked_out"
+    cancelled = "cancelled"
+
+
+class BookingPaymentStatus(str, enum.Enum):
+    unpaid = "unpaid"
+    partial = "partial"
+    paid = "paid"
+    refunded = "refunded"
+
+
+class OrderType(str, enum.Enum):
+    dine_in = "dine_in"
+    delivery = "delivery"
+    takeaway = "takeaway"
+    room_service = "room_service"
+
 
 class OrderStatus(str, enum.Enum):
     CREATED = "created"
@@ -20,15 +66,27 @@ class OrderStatus(str, enum.Enum):
     EXPIRED = "expired"
     CANCELLED = "cancelled"
 
+
 class PaymentStatus(str, enum.Enum):
+    pending = "pending"
+    success = "success"
+    failed = "failed"
+    reversed = "reversed"
+
     PENDING = "pending"
     SUCCESS = "success"
     FAILED = "failed"
     REVERSED = "reversed"
 
+
 class PaymentMethod(str, enum.Enum):
-    MPESA = "mpesa"  # Legacy alias for existing webhook compatibility
-    MOBILE_MONEY = "mobile_money"
-    STRIPE = "stripe"
-    CARD = "card"
+    stripe = "stripe"
+    cash = "cash"
+
+    CARD = "stripe"
     CASH = "cash"
+
+
+class PaymentEntityType(str, enum.Enum):
+    booking = "booking"
+    order = "order"

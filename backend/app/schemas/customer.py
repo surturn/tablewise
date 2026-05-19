@@ -2,17 +2,25 @@ import uuid
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-class CustomerBase(BaseModel):
+
+class GuestBase(BaseModel):
     phone_number: str
     full_name: str
     email: Optional[EmailStr] = None
+    nationality: Optional[str] = None
+    id_document_type: Optional[str] = None
 
-class CustomerCreate(CustomerBase):
-    """Schema for creating or registering a new customer."""
+
+class GuestCreate(GuestBase):
     pass
 
-class CustomerResponse(CustomerBase):
-    """Schema for returning customer data."""
+
+class GuestResponse(GuestBase):
     id: uuid.UUID
     loyalty_points: int
+    total_spend_usd_cents: int
     model_config = ConfigDict(from_attributes=True)
+
+
+CustomerCreate = GuestCreate
+CustomerResponse = GuestResponse

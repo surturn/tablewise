@@ -7,6 +7,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   special_instructions?: string;
+  outlet_id?: string;
 }
 
 interface CartState {
@@ -77,7 +78,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'tablewise-cart',
+      name: 'grandplatform-cart',
       partialize: (state) => ({ items: state.items, branch_id: state.branch_id }), // Don't persist isOpen
     }
   )

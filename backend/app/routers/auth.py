@@ -36,11 +36,11 @@ async def login_access_token(
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    # Generate JWT containing ID, Role, and Branch
+    # Generate JWT containing ID, Role, and Outlet
     access_token = create_access_token(
         subject=str(user.id),
         role=user.role,
-        branch_id=str(user.branch_id) if user.branch_id else None,
+        outlet_id=str(user.outlet_id) if user.outlet_id else None,
         expires_delta=access_token_expires
     )
 
