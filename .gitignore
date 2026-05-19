@@ -15,3 +15,5 @@ __pycache__/
 !backend/alembic/env.py
 !backend/alembic/alembic.ini
 !backend/alembic/script.py.mako
+
+/frontend/dist/
