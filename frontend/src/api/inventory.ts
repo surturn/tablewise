@@ -8,15 +8,15 @@ export interface InventoryItem {
   quantity: number;
   unit: string;
   low_stock_threshold: number;
-  branch_id: string;
+  outlet_id: string;
 }
 
 // Fetch inventory (Backend handles RBAC scoping automatically based on JWT token)
-export const useInventory = (branchId?: string) => {
+export const useInventory = (outletId?: string) => {
   return useQuery({
-    queryKey: ['inventory', branchId],
+    queryKey: ['inventory', outletId],
     queryFn: async (): Promise<InventoryItem[]> => {
-      const params = branchId ? { branch_id: branchId, limit: 1000 } : { limit: 1000 };
+      const params = outletId ? { outlet_id: outletId, limit: 1000 } : { limit: 1000 };
       const { data } = await apiClient.get<any>('/inventory/', { params });
       return data.items || [];
     },

@@ -7,8 +7,9 @@ export function useOrdersWebSocket(outletId?: string) {
 
   useEffect(() => {
     if (!outletId) return;
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${protocol}//${window.location.host}/ws/orders/${outletId}`);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+    const wsUrl = baseUrl.replace(/^http/, 'ws') + `/ws/orders/${outletId}`;
+    const socket = new WebSocket(wsUrl);
 
     socket.onmessage = (event) => {
       const update = JSON.parse(event.data) as { type: string; order_id: string; status: string; updated_at: string };

@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface CartItem {
   menu_item_id: string;
   name: string;
-  price: number;
+  price_usd_cents: number;
   quantity: number;
   special_instructions?: string;
   outlet_id?: string;
@@ -12,30 +12,30 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
-  branch_id: string | null;
-  isOpen: boolean; // Added for Drawer UI
+  outlet_id: string | null;
+  isOpen: boolean;
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  setBranch: (branch_id: string) => void;
+  setOutlet: (outlet_id: string) => void;
   addItem: (item: CartItem) => void;
   removeItem: (menu_item_id: string) => void;
   updateQuantity: (menu_item_id: string, quantity: number) => void;
   clearCart: () => void;
-  getTotal: () => number;
+  getTotalCents: () => number;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      items:[],
-      branch_id: null,
+      items: [],
+      outlet_id: null,
       isOpen: false,
 
       toggleCart: () => set({ isOpen: !get().isOpen }),
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
-      setBranch: (branch_id) => set({ branch_id }),
+      setOutlet: (outlet_id) => set({ outlet_id }),
 
       addItem: (newItem) => {
         const currentItems = get().items;
@@ -52,7 +52,7 @@ export const useCartStore = create<CartState>()(
         } else {
           set({ items: [...currentItems, newItem] });
         }
-        set({ isOpen: true }); // Auto-open cart when adding item
+        set({ isOpen: true });
       },
 
       removeItem: (menu_item_id) => {
@@ -71,15 +71,15 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      clearCart: () => set({ items:[], branch_id: null }),
+      clearCart: () => set({ items: [], outlet_id: null }),
 
-      getTotal: () => {
-        return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
+      getTotalCents: () => {
+        return get().items.reduce((total, item) => total + item.price_usd_cents * item.quantity, 0);
       },
     }),
     {
-      name: 'grandplatform-cart',
-      partialize: (state) => ({ items: state.items, branch_id: state.branch_id }), // Don't persist isOpen
+      name: 'tablewise-cart',
+      partialize: (state) => ({ items: state.items, outlet_id: state.outlet_id }),
     }
   )
 );

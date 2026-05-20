@@ -1,15 +1,13 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuthStore } from '@/store/authStore.ts';
+import { useAuthStore } from '../../store/authStore';
 
-export const ProtectedRoute: React.FC = () => {
+export const ProtectedRoute: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const token = useAuthStore((state) => state.token);
 
-  // If no token exists, bump them to the login page
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // Otherwise, render the child routes (Outlet)
-  return <Outlet />;
+  return children ? <>{children}</> : <Outlet />;
 };

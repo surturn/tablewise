@@ -2,18 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Global Styles */
-html, body, #root {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
+@layer base {
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    @apply bg-brand-light text-brand-dark antialiased selection:bg-brand-orange selection:text-white;
   }
-  to {
-    transform: translateX(0);
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-subtle;
+  }
+  
+  .shimmer {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 }
