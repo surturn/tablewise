@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, paginate_response
 from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 from app.services import order_service
 from app.routers.deps import require_roles, get_optional_current_user
@@ -32,7 +32,8 @@ async def list_orders(
     query_outlet = outlet_id
     if current_user.role != UserRole.owner and current_user.outlet_id:
         query_outlet = current_user.outlet_id
-    return await order_service.get_orders(db, outlet_id=query_outlet, page=page, limit=limit)
+    items, total = await order_service.get_orders(db, outlet_id=query_outlet, page=page, limit=limit)
+    return paginate_response(items, total, page, limit)
 
 
 @router.get("/{order_id}", response_model=OrderResponse)

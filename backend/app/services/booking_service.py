@@ -1,6 +1,5 @@
 import uuid
 from datetime import date
-from math import ceil
 from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy import and_, func, select
@@ -9,7 +8,6 @@ from sqlalchemy.orm import selectinload
 from app.models.customer import Guest
 from app.models.enums import BookingPaymentStatus, BookingStatus, RoomStatus
 from app.models.rooms import Booking, BookingExtra, Room, RoomType
-from app.schemas.common import PaginatedResponse
 from app.services.audit_service import write_audit_log
 from app.tasks import schedule_housekeeping, send_sms_notification
 
@@ -54,7 +52,7 @@ async def create_booking(db: AsyncSession, room_type_id: uuid.UUID, guest: dict,
     return await get_booking(db, booking.id)
 
 
-async def list_bookings(db: AsyncSession, page: int, limit: int, status: Optional[BookingStatus] = None, date_from: Optional[date] = None, date_to: Optional[date] = None) -> PaginatedResponse[Booking]:
+async def list_bookings(db: AsyncSession, page: int, limit: int, status: Optional[BookingStatus] = None, date_from: Optional[date] = None, date_to: Optional[date] = None) -> tuple[list[Booking], int]:
     query = select(Booking).options(selectinload(Booking.extras), selectinload(Booking.room)).order_by(Booking.check_in.desc())
     count_query = select(func.count(Booking.id))
     filters = []
@@ -69,7 +67,7 @@ async def list_bookings(db: AsyncSession, page: int, limit: int, status: Optiona
         count_query = count_query.where(and_(*filters))
     total = await db.scalar(count_query) or 0
     result = await db.execute(query.offset((page - 1) * limit).limit(limit))
-    return PaginatedResponse(items=list(result.scalars().all()), total=total, page=page, pages=ceil(total / limit) if total else 0)
+    return list(result.scalars().all()), total
 
 
 async def get_booking(db: AsyncSession, booking_id: uuid.UUID) -> Booking | None:
@@ -94,4 +92,4 @@ async def update_booking_status(db: AsyncSession, booking_id: uuid.UUID, target:
     await write_audit_log(db, "booking_status_changed", "booking", booking.id, user_id=user_id, old_value={"status": old.value}, new_value={"status": target.value})
     await db.commit()
     await db.refresh(booking)
-    return booking
+    return await get_booking(db, booking_id)

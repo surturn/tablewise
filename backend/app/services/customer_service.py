@@ -1,11 +1,11 @@
 import uuid
-from math import ceil
 from typing import Optional
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.customer import Guest
-from app.schemas.common import PaginatedResponse
-from app.schemas.customer import GuestCreate
+
+# Added GuestResponse to the import list
+from app.schemas.customer import GuestCreate, GuestResponse
 
 
 async def create_guest(db: AsyncSession, guest_in: GuestCreate) -> Guest:
@@ -24,7 +24,8 @@ async def get_guest(db: AsyncSession, guest_id: uuid.UUID) -> Guest | None:
     return await db.get(Guest, guest_id)
 
 
-async def get_guests(db: AsyncSession, page: int = 1, limit: int = 50, phone: Optional[str] = None) -> PaginatedResponse[Guest]:
+# Changed type hint to use GuestResponse instead of the SQLAlchemy Guest model
+async def get_guests(db: AsyncSession, page: int = 1, limit: int = 50, phone: Optional[str] = None) -> tuple[list[Guest], int]:
     query = select(Guest).order_by(Guest.full_name)
     count_query = select(func.count(Guest.id))
     if phone:
@@ -32,4 +33,4 @@ async def get_guests(db: AsyncSession, page: int = 1, limit: int = 50, phone: Op
         count_query = count_query.where(Guest.phone_number == phone)
     total = await db.scalar(count_query) or 0
     result = await db.execute(query.offset((page - 1) * limit).limit(limit))
-    return PaginatedResponse(items=list(result.scalars().all()), total=total, page=page, pages=ceil(total / limit) if total else 0)
+    return list(result.scalars().all()), total
