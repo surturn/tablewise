@@ -1,13 +1,76 @@
 import React from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '../../api/client';
-
-interface Room { id: string; room_number: string; floor: number; status: string }
+import { m } from 'framer-motion';
+import { useRooms } from '../../api/rooms';
+import { useScheduleHousekeeping } from '../../api/housekeeping';
+import { StatusBadge } from '../../components/ui/StatusBadge';
+import { SkeletonTable } from '../../components/ui/Skeleton';
+import { SprayCan, CheckCircle } from 'lucide-react';
+import { useToastStore } from '../../store/toastStore';
 
 const HousekeepingPage: React.FC = () => {
-  const queryClient = useQueryClient();
-  const { data = [] } = useQuery({ queryKey: ['rooms', 'cleaning'], queryFn: async () => (await apiClient.get<Room[]>('/rooms/', { params: { status: 'cleaning' } })).data });
-  const markAvailable = useMutation({ mutationFn: (roomId: string) => apiClient.put(`/rooms/${roomId}/status`, { status: 'available' }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['rooms'] }) });
-  return <div className="p-6"><h1 className="text-2xl font-bold mb-4">Housekeeping</h1><div className="space-y-3">{data.map(room => <div key={room.id} className="flex items-center justify-between rounded-lg border p-4"><span>Room {room.room_number} · Floor {room.floor}</span><button className="rounded bg-green-700 px-3 py-2 text-white" onClick={() => markAvailable.mutate(room.id)}>Mark available</button></div>)}</div></div>;
+  const { data: rooms, isLoading } = useRooms();
+  const scheduleHousekeeping = useScheduleHousekeeping();
+  const addToast = useToastStore(s => s.addToast);
+
+  const handleSchedule = (roomId: string) => {
+    scheduleHousekeeping.mutate(roomId, {
+      onSuccess: () => addToast('Housekeeping scheduled successfully', 'success'),
+      onError: () => addToast('Failed to schedule housekeeping', 'error')
+    });
+  };
+
+  if (isLoading) return <SkeletonTable rows={10} />;
+
+  // Filter only rooms that are occupied or need cleaning
+  const priorityRooms = rooms?.filter(r => ['cleaning', 'occupied'].includes(r.status)) || [];
+
+  return (
+    <m.div className="bg-white rounded-2xl border border-stone-200 shadow-subtle overflow-hidden">
+      <div className="px-6 py-5 border-b border-stone-200 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-brand-dark flex items-center gap-2">
+          <SprayCan className="text-brand-orange" /> Housekeeping Schedule
+        </h2>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm text-stone-600">
+          <thead className="bg-stone-50 border-b border-stone-200">
+            <tr>
+              <th className="px-6 py-4 font-bold text-brand-dark">Room No.</th>
+              <th className="px-6 py-4 font-bold text-brand-dark">Floor</th>
+              <th className="px-6 py-4 font-bold text-brand-dark">Status</th>
+              <th className="px-6 py-4 font-bold text-brand-dark text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-stone-100">
+            {priorityRooms.map((room) => (
+              <tr key={room.id} className="hover:bg-stone-50 transition-colors">
+                <td className="px-6 py-4 font-bold text-brand-dark">{room.room_number}</td>
+                <td className="px-6 py-4">{room.floor}</td>
+                <td className="px-6 py-4">
+                  <StatusBadge status={room.status} />
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <button 
+                    onClick={() => handleSchedule(room.id)}
+                    disabled={scheduleHousekeeping.isPending}
+                    className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    <CheckCircle size={16} /> Mark Cleaned
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {priorityRooms.length === 0 && (
+        <div className="p-12 text-center text-stone-500">
+          All rooms are clean!
+        </div>
+      )}
+    </m.div>
+  );
 };
+
 export default HousekeepingPage;
