@@ -16,9 +16,9 @@ export const useInventory = (branchId?: string) => {
   return useQuery({
     queryKey: ['inventory', branchId],
     queryFn: async (): Promise<InventoryItem[]> => {
-      const params = branchId ? { branch_id: branchId } : {};
-      const { data } = await apiClient.get('/inventory/', { params });
-      return data;
+      const params = branchId ? { branch_id: branchId, limit: 1000 } : { limit: 1000 };
+      const { data } = await apiClient.get<any>('/inventory/', { params });
+      return data.items || [];
     },
   });
 };

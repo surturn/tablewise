@@ -12,7 +12,6 @@ from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.models.payment import Payment
 from app.models.user import User
-from app.schemas.common import PaginatedResponse
 from app.schemas.order import OrderCreate, OrderStatusUpdate
 from app.services.audit_service import write_audit_log
 from app.websocket_manager import order_ws_manager
@@ -96,7 +95,7 @@ async def get_order(db: AsyncSession, order_id: uuid.UUID) -> Order | None:
     return result.scalars().first()
 
 
-async def get_orders(db: AsyncSession, outlet_id: Optional[uuid.UUID] = None, page: int = 1, limit: int = 50) -> PaginatedResponse[Order]:
+async def get_orders(db: AsyncSession, outlet_id: Optional[uuid.UUID] = None, page: int = 1, limit: int = 50) -> tuple[list[Order], int]:
     query = select(Order).options(selectinload(Order.items)).order_by(Order.created_at.desc())
     count_query = select(func.count(Order.id))
     if outlet_id:
@@ -105,7 +104,7 @@ async def get_orders(db: AsyncSession, outlet_id: Optional[uuid.UUID] = None, pa
     total = await db.scalar(count_query) or 0
     result = await db.execute(query.offset((page - 1) * limit).limit(limit))
     items = list(result.scalars().all())
-    return PaginatedResponse(items=items, total=total, page=page, pages=ceil(total / limit) if total else 0)
+    return items, total
 
 
 async def update_order_status(db: AsyncSession, order_id: uuid.UUID, new_status: OrderStatusUpdate) -> Order:
@@ -121,4 +120,4 @@ async def update_order_status(db: AsyncSession, order_id: uuid.UUID, new_status:
     await db.commit()
     await db.refresh(db_order)
     await order_ws_manager.broadcast_order_update(db_order.outlet_id, {"type": "order_update", "order_id": str(db_order.id), "status": db_order.status.value, "updated_at": db_order.updated_at.isoformat()})
-    return db_order
+    return await get_order(db, order_id)

@@ -6,7 +6,7 @@ from app.database import get_db
 from app.models.enums import UserRole
 from app.models.user import User
 from app.routers.deps import require_roles
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, paginate_response
 from app.schemas.customer import GuestCreate, GuestResponse
 from app.services import customer_service
 
@@ -19,8 +19,9 @@ async def create_guest(guest_in: GuestCreate, db: AsyncSession = Depends(get_db)
 
 
 @router.get("/", response_model=PaginatedResponse[GuestResponse])
-async def list_guests(phone: Optional[str] = Query(None), page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=200), db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.receptionist]))):
-    return await customer_service.get_guests(db, page=page, limit=limit, phone=phone)
+async def list_guests(phone: Optional[str] = Query(None), page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=1000), db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.receptionist]))):
+    items, total = await customer_service.get_guests(db, page=page, limit=limit, phone=phone)
+    return paginate_response(items, total, page, limit)
 
 
 @router.get("/{guest_id}", response_model=GuestResponse)

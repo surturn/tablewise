@@ -24,5 +24,6 @@ class OutletResponse(OutletBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+BranchBase = OutletBase
 BranchCreate = OutletCreate
 BranchResponse = OutletResponse

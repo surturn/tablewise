@@ -9,6 +9,6 @@ export interface Customer {
 }
 
 export const fetchCustomers = async (): Promise<Customer[]> => {
-  const response = await apiClient.get<Customer[]>('/customers');
-  return response.data;
+  const response = await apiClient.get<any>('/customers', { params: { limit: 1000 } });
+  return response.data.items || [];
 };

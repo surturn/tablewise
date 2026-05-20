@@ -24,3 +24,5 @@ class GuestResponse(GuestBase):
 
 CustomerCreate = GuestCreate
 CustomerResponse = GuestResponse
+GuestCreate = GuestCreate
+GuestResponse = GuestResponse
