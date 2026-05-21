@@ -13,6 +13,9 @@ from app.routers.deps import get_current_active_user
 
 router = APIRouter()
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 @router.post("/login", response_model=Token)
 async def login_access_token(
@@ -23,6 +26,7 @@ async def login_access_token(
     OAuth2 compatible token login. Get an access token for future requests.
     Note: OAuth2PasswordRequestForm uses 'username' field, which we map to 'email'.
     """
+    logger.info("Login attempt for %s", form_data.username)
     user = await authenticate_user(db, email=form_data.username, password=form_data.password)
 
     if not user:
