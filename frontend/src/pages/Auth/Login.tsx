@@ -17,18 +17,22 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log("Submitting login for:", email);
 
     try {
       const { access_token } = await login(email, password);
+      console.log("Response access_token received");
       
       useAuthStore.getState().setToken(access_token);
       
       const user = await getMe();
+      console.log("Auth success for user:", user);
       
       setAuth(access_token, user);
       addToast(`Welcome back, ${user.full_name}!`, 'success');
       navigate('/dashboard');
     } catch (err: any) {
+      console.error("Login failed:", err);
       addToast('Invalid email or password', 'error');
     } finally {
       setIsLoading(false);
