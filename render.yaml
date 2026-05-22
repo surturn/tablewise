@@ -7,7 +7,7 @@
 
 databases:
   - name: tablewise-db
-    plan: starter           # Free-tier managed Postgres
+    plan: free           # Free-tier managed Postgres
     databaseName: tablewise
     user: tablewise_user
     region: oregon          # Pick the region closest to your users
@@ -18,7 +18,7 @@ services:
     name: tablewise-api
     runtime: docker
     region: oregon
-    plan: starter           # Free-tier web service
+    plan: free           # Free-tier web service
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     healthCheckPath: /health
