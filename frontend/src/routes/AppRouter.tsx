@@ -1,61 +1,59 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
-
-// Public Pages
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from '../pages/Public/HomePage';
 import Menu from '../pages/Public/Menu';
+import Book from '../pages/Public/Book';
 import Login from '../pages/Auth/Login';
-import Navbar from '../components/Layout/Navbar';
-
-// Protected Pages & Layouts
-import { ProtectedRoute } from '../components/Layout/ProtectedRoute';
+import StaffLogin from '../pages/Auth/StaffLogin';
 import DashboardLayout from '../components/Layout/DashboardLayout';
+import { ProtectedRoute } from '../components/Layout/ProtectedRoute';
 import DashboardHome from '../pages/Dashboard/DashboardHome';
 import OrdersFeed from '../pages/Dashboard/OrdersFeed';
-import InventoryManagement from '../pages/Dashboard/InventoryManagement';
-import AnalyticsPage from '../pages/Dashboard/AnalyticsPage';
-import CustomersManagement from '../pages/Dashboard/CustomersManagement';
 import RoomsPage from '../pages/Dashboard/RoomsPage';
 import ReservationsPage from '../pages/Dashboard/ReservationsPage';
 import HousekeepingPage from '../pages/Dashboard/HousekeepingPage';
-import Book from '../pages/Public/Book';
+import InventoryManagement from '../pages/Dashboard/InventoryManagement';
+import CustomersManagement from '../pages/Dashboard/CustomersManagement';
+import AnalyticsPage from '../pages/Dashboard/AnalyticsPage';
 
-// Create a simple Public Layout wrapper that includes the Outlet
-const PublicLayout = () => (
-  <>
-    <Navbar />
-    {/* Outlet is CRITICAL! It tells React Router where to render HomePage or Menu */}
-    <Outlet />
-  </>
-);
+import CustomerDashboard from '../pages/customer/CustomerDashboard';
+import DineFlow from '../pages/customer/DineFlow';
+import StayFlow from '../pages/customer/StayFlow';
+import DrinkFlow from '../pages/customer/DrinkFlow';
 
-const AppRouter: React.FC = () => {
+const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Routes>
-        {/* Public Routes using the PublicLayout */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/book" element={<Book />} />
-        </Route>
-
-        {/* Auth Route without Navbar */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/book" element={<Book />} />
         <Route path="/login" element={<Login />} />
-
-        {/* Protected Dashboard Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="orders" element={<OrdersFeed />} />
-            <Route path="inventory" element={<InventoryManagement />} />
-            <Route path="customers" element={<CustomersManagement />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
-            <Route path="rooms" element={<RoomsPage />} />
-            <Route path="reservations" element={<ReservationsPage />} />
-            <Route path="housekeeping" element={<HousekeepingPage />} />
-          </Route>
+        <Route path="/staff/login" element={<StaffLogin />} />
+        
+        <Route path="/customer">
+          <Route path="dashboard" element={<ProtectedRoute roles={['customer']}><CustomerDashboard /></ProtectedRoute>} />
+          <Route path="dine" element={<ProtectedRoute roles={['customer']}><DineFlow /></ProtectedRoute>} />
+          <Route path="stay" element={<ProtectedRoute roles={['customer']}><StayFlow /></ProtectedRoute>} />
+          <Route path="drink" element={<ProtectedRoute roles={['customer']}><DrinkFlow /></ProtectedRoute>} />
         </Route>
+        
+        <Route path="/dashboard" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'restaurant_manager', 'chef', 'waiter', 'bartender', 'receptionist', 'rider']}><DashboardLayout /></ProtectedRoute>}>
+          <Route index element={<ProtectedRoute roles={['owner', 'hotel_manager']}><DashboardHome /></ProtectedRoute>} />
+          <Route path="orders" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'restaurant_manager', 'chef', 'waiter', 'bartender', 'rider']}><OrdersFeed /></ProtectedRoute>} />
+          <Route path="rooms" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'receptionist']}><RoomsPage /></ProtectedRoute>} />
+          <Route path="reservations" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'receptionist']}><ReservationsPage /></ProtectedRoute>} />
+          <Route path="housekeeping" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'receptionist']}><HousekeepingPage /></ProtectedRoute>} />
+          <Route path="inventory" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'restaurant_manager']}><InventoryManagement /></ProtectedRoute>} />
+          <Route path="customers" element={<ProtectedRoute roles={['owner', 'hotel_manager', 'receptionist']}><CustomersManagement /></ProtectedRoute>} />
+          <Route path="analytics" element={<ProtectedRoute roles={['owner', 'hotel_manager']}><AnalyticsPage /></ProtectedRoute>} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

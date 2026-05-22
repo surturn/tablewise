@@ -1,12 +1,11 @@
 import uuid
-from math import ceil
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
 from app.models.inventory_item import InventoryItem
 from app.models.operations import StockMovement
-from app.schemas.common import PaginatedResponse
-from app.schemas.inventory import InventoryItemCreate, InventoryItemUpdate
+
+from app.schemas.inventory import InventoryItemCreate, InventoryItemUpdate, InventoryItemResponse
 
 
 async def create_item(db: AsyncSession, item_in: InventoryItemCreate) -> InventoryItem:
@@ -17,7 +16,8 @@ async def create_item(db: AsyncSession, item_in: InventoryItemCreate) -> Invento
     return db_obj
 
 
-async def get_items(db: AsyncSession, outlet_id: Optional[uuid.UUID] = None, page: int = 1, limit: int = 50) -> PaginatedResponse[InventoryItem]:
+# 2. Changed type hint to use the Pydantic schema instead of the SQLAlchemy model
+async def get_items(db: AsyncSession, outlet_id: Optional[uuid.UUID] = None, page: int = 1, limit: int = 50) -> tuple[list[InventoryItem], int]:
     query = select(InventoryItem).order_by(InventoryItem.name)
     count_query = select(func.count(InventoryItem.id))
     if outlet_id:
@@ -25,7 +25,8 @@ async def get_items(db: AsyncSession, outlet_id: Optional[uuid.UUID] = None, pag
         count_query = count_query.where(InventoryItem.outlet_id == outlet_id)
     total = await db.scalar(count_query) or 0
     result = await db.execute(query.offset((page - 1) * limit).limit(limit))
-    return PaginatedResponse(items=list(result.scalars().all()), total=total, page=page, pages=ceil(total / limit) if total else 0)
+    
+    return list(result.scalars().all()), total
 
 
 async def update_stock(db: AsyncSession, item_id: uuid.UUID, update_data: InventoryItemUpdate, user_id: uuid.UUID | None = None) -> InventoryItem | None:

@@ -1,7 +1,6 @@
 from math import ceil
 from typing import Generic, TypeVar
 from pydantic import BaseModel, Field
-from pydantic.generics import GenericModel
 
 T = TypeVar("T")
 
@@ -15,7 +14,7 @@ class PaginationParams(BaseModel):
         return (self.page - 1) * self.limit
 
 
-class PaginatedResponse(GenericModel, Generic[T]):
+class PaginatedResponse(BaseModel, Generic[T]):
     items: list[T]
     total: int
     page: int

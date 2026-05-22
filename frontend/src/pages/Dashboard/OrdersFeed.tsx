@@ -1,109 +1,160 @@
-import React from 'react';
-// Added OrderItem to the import to fix the 'item' implicitly any error
-import { useOrders, useUpdateOrderStatus, Order, OrderItem } from '@/api/orders.ts';
-// Removed 'Truck' to fix TS6133
-import { CheckCircle, ChefHat, PackageCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { m, AnimatePresence } from 'framer-motion';
+import { useOrdersWebSocket } from '../../hooks/useOrdersWebSocket';
+import { useUpdateOrderStatus } from '../../api/orders';
+import { apiClient } from '../../api/client';
+import { useAuthStore } from '../../store/authStore';
+import { StatusBadge } from '../../components/ui/StatusBadge';
+import { SkeletonCard } from '../../components/ui/Skeleton';
+import { ShoppingBag, Clock } from 'lucide-react';
+import { useToastStore } from '../../store/toastStore';
 
 const OrdersFeed: React.FC = () => {
-  const { data, isLoading, error } = useOrders();
-  const orders = data?.items ?? [];
+  const { user } = useAuthStore();
+  const [filter, setFilter] = useState('active');
+  const addToast = useToastStore(s => s.addToast);
+
+  const { data: initialOrders, isLoading } = useQuery({
+    queryKey: ['orders', user?.outlet_id, filter],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/orders/', {
+        params: { outlet_id: user?.outlet_id, limit: 50 },
+      });
+      return data.items || data;
+    },
+  });
+
+  useOrdersWebSocket(user?.outlet_id || '');
   const updateStatus = useUpdateOrderStatus();
 
-  if (isLoading) return <div className="text-gray-500">Loading live orders...</div>;
-  if (error) return <div className="text-red-500">Failed to load orders.</div>;
-
-  // FIX: Explicitly typed 'o' as 'Order'
-  const activeOrders = orders.filter((o: Order) =>
-    !['delivered', 'cancelled', 'payment_failed', 'expired', 'created', 'pending_payment'].includes(o.status)
-  ) || [];
-
-  const columns = [
-    { title: 'New (Paid)', status: 'paid', icon: CheckCircle, color: 'bg-blue-50 border-blue-200 text-blue-700', nextAction: 'confirmed', btnText: 'Acknowledge' },
-    { title: 'Confirmed', status: 'confirmed', icon: ChefHat, color: 'bg-yellow-50 border-yellow-200 text-yellow-700', nextAction: 'preparing', btnText: 'Send to Kitchen' },
-    { title: 'Preparing', status: 'preparing', icon: ChefHat, color: 'bg-orange-50 border-orange-200 text-orange-700', nextAction: 'ready', btnText: 'Mark Ready' },
-    { title: 'Ready', status: 'ready', icon: PackageCheck, color: 'bg-green-50 border-green-200 text-green-700', nextAction: 'dispatched', btnText: 'Dispatch' },
-  ];
-
-  const handleStatusChange = (orderId: string, nextStatus: string) => {
-    updateStatus.mutate({ orderId, status: nextStatus });
+  const handleUpdateStatus = (orderId: string, newStatus: string) => {
+    updateStatus.mutate({ orderId, status: newStatus }, {
+      onSuccess: () => addToast('Order status updated', 'success'),
+      onError: () => addToast('Failed to update status', 'error')
+    });
   };
 
+  const displayOrders = initialOrders || [];
+
+  const filteredOrders = displayOrders.filter((order: any) => {
+    if (filter === 'active') return !['completed', 'cancelled', 'delivered'].includes(order.status);
+    if (filter === 'completed') return ['completed', 'delivered'].includes(order.status);
+    return true;
+  });
+
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Kitchen Display System</h2>
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-          </span>
-          <span className="text-sm font-medium text-gray-600">Live Sync Active</span>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 className="text-2xl font-bold text-brand-dark flex items-center gap-2">
+          <ShoppingBag className="text-brand-orange" /> POS & Orders Feed
+        </h2>
+        
+        <div className="flex bg-stone-100 p-1 rounded-lg">
+          <button
+            onClick={() => setFilter('active')}
+            className={`px-4 py-2 rounded-md text-sm font-bold transition-colors ${filter === 'active' ? 'bg-white text-brand-dark shadow-sm' : 'text-stone-500 hover:text-brand-dark'}`}
+          >
+            Active Orders
+          </button>
+          <button
+            onClick={() => setFilter('completed')}
+            className={`px-4 py-2 rounded-md text-sm font-bold transition-colors ${filter === 'completed' ? 'bg-white text-brand-dark shadow-sm' : 'text-stone-500 hover:text-brand-dark'}`}
+          >
+            Completed
+          </button>
+          <button
+            onClick={() => setFilter('all')}
+            className={`px-4 py-2 rounded-md text-sm font-bold transition-colors ${filter === 'all' ? 'bg-white text-brand-dark shadow-sm' : 'text-stone-500 hover:text-brand-dark'}`}
+          >
+            All
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 overflow-x-auto pb-4">
-        {columns.map((col) => {
-          // FIX: Explicitly typed 'o' as 'Order'
-          const colOrders = activeOrders.filter((o: Order) => o.status === col.status);
-          const Icon = col.icon;
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <AnimatePresence>
+            {filteredOrders.map((order: any) => (
+              <m.div
+                key={order.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                layout
+                className="bg-white p-5 rounded-2xl shadow-subtle border border-stone-200 flex flex-col"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <span className="text-xs font-bold text-stone-400">#{order.id.slice(0, 8)}</span>
+                    <h3 className="font-bold text-lg text-brand-dark mt-1">
+                      {order.guest?.full_name || order.guest_id.slice(0, 8)}
+                    </h3>
+                  </div>
+                  <StatusBadge status={order.status} />
+                </div>
 
-          return (
-            <div key={col.status} className="flex flex-col bg-gray-100/50 rounded-xl p-4 border border-gray-200 min-w-[300px]">
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border mb-4 ${col.color}`}>
-                <Icon size={20} />
-                <h3 className="font-bold">{col.title} ({colOrders.length})</h3>
-              </div>
+                <div className="flex-1 bg-stone-50 rounded-xl p-4 mb-4">
+                  <ul className="space-y-2">
+                    {order.items?.map((item: any) => (
+                      <li key={item.id} className="flex justify-between text-sm">
+                        <span className="font-medium text-brand-dark">{item.quantity}x {item.menu_item?.name || 'Item'}</span>
+                        <span className="text-stone-500">${((item.price_usd_cents * item.quantity) / 100).toFixed(2)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-              <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-                {colOrders.length === 0 ? (
-                  <p className="text-sm text-gray-400 text-center py-8">No orders</p>
-                ) : (
-                  colOrders.map((order: Order) => (
-                    <div key={order.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col">
-                      <div className="flex justify-between items-start mb-3 border-b pb-2">
-                        <div>
-                          <span className="text-xs font-bold text-gray-400">#{order.id.slice(0, 8)}</span>
-                          <div className="font-bold text-gray-800 mt-1">
-                            {order.is_delivery ? <span className="text-brand-orange">Delivery</span> : <span>{order.order_type === 'room_service' ? `ROOM ${order.room_id?.slice(0, 8)}` : order.order_type}</span>}
-                          </div>
-                        </div>
-                        <span className="text-sm font-bold bg-gray-100 px-2 py-1 rounded">
-                          USD {(order.total_usd_cents / 100).toFixed(2)}
-                        </span>
-                      </div>
-
-                      <div className="flex-1 mb-4">
-                        <ul className="space-y-2 text-sm">
-                          {/* FIX: Explicitly typed 'item' as 'OrderItem' (or you could use 'any' if you don't have the type yet) */}
-                          {order.items.map((item: OrderItem) => (
-                            <li key={item.id} className="flex justify-between font-medium text-gray-700">
-                              <span>{item.quantity}x Item</span>
-                              <span className="text-gray-400">USD {(item.subtotal_usd_cents / 100).toFixed(2)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        {order.notes && (
-                          <div className="mt-3 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-yellow-800 font-medium">
-                            Note: {order.notes}
-                          </div>
-                        )}
-                      </div>
-
+                <div className="flex justify-between items-center pt-4 border-t border-stone-100">
+                  <div>
+                    <span className="text-xs text-stone-500 block mb-1">Total Amount</span>
+                    <span className="font-black text-xl text-brand-dark">${(order.total_usd_cents / 100).toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {order.status === 'created' || order.status === 'pending_payment' ? (
                       <button
-                        onClick={() => handleStatusChange(order.id, col.nextAction)}
-                        disabled={updateStatus.isPending}
-                        className="mt-auto w-full py-2 bg-brand-dark text-white rounded font-medium hover:bg-black transition-colors disabled:opacity-50"
+                        onClick={() => handleUpdateStatus(order.id, 'preparing')}
+                        className="bg-brand-orange hover:bg-amber-400 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
                       >
-                        {col.btnText}
+                        Accept
                       </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                    ) : order.status === 'preparing' ? (
+                      <button
+                        onClick={() => handleUpdateStatus(order.id, 'ready')}
+                        className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+                      >
+                        Mark Ready
+                      </button>
+                    ) : order.status === 'ready' ? (
+                      <button
+                        onClick={() => handleUpdateStatus(order.id, 'completed')}
+                        className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors"
+                      >
+                        Complete
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </m.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+      
+      {!isLoading && filteredOrders.length === 0 && (
+        <div className="bg-white border border-dashed border-stone-200 rounded-2xl p-12 text-center flex flex-col items-center">
+          <Clock size={48} className="text-stone-300 mb-4" />
+          <h3 className="text-lg font-bold text-brand-dark">No orders found</h3>
+          <p className="text-stone-500">Wait for new orders to arrive.</p>
+        </div>
+      )}
     </div>
   );
 };

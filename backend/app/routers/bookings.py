@@ -8,7 +8,7 @@ from app.models.enums import BookingStatus, UserRole
 from app.models.user import User
 from app.routers.deps import require_roles
 from app.schemas.booking import BookingCreate, BookingExtraCreate, BookingResponse, BookingStatusUpdate
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, paginate_response
 from app.schemas.payment import PaymentIntentResponse
 from app.services import booking_service, payment_service
 
@@ -17,7 +17,8 @@ router = APIRouter()
 
 @router.get("/", response_model=PaginatedResponse[BookingResponse])
 async def list_bookings(page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=200), status_filter: Optional[BookingStatus] = Query(None, alias="status"), date_from: Optional[date] = None, date_to: Optional[date] = None, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.receptionist]))):
-    return await booking_service.list_bookings(db, page, limit, status_filter, date_from, date_to)
+    items, total = await booking_service.list_bookings(db, page, limit, status_filter, date_from, date_to)
+    return paginate_response(items, total, page, limit)
 
 
 @router.post("/", response_model=BookingResponse, status_code=status.HTTP_201_CREATED)
@@ -53,4 +54,5 @@ async def create_booking_payment_intent(booking_id: uuid.UUID, customer_email: s
 
 @router.get("/calendar", response_model=PaginatedResponse[BookingResponse])
 async def booking_calendar(date_from: date, date_to: date, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.receptionist]))):
-    return await booking_service.list_bookings(db, 1, 200, None, date_from, date_to)
+    items, total = await booking_service.list_bookings(db, 1, 200, None, date_from, date_to)
+    return paginate_response(items, total, 1, 200)

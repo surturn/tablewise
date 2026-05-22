@@ -1,86 +1,79 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { fetchGuests } from '../../api/guests';
+import { SkeletonTable } from '../../components/ui/Skeleton';
 import { Users, Search, Award } from 'lucide-react';
-import { fetchCustomers } from '@/api/customers.ts';
+import { m } from 'framer-motion';
 
 const CustomersManagement: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const { data: guests, isLoading } = useQuery({ queryKey: ['guests'], queryFn: fetchGuests });
+  const [search, setSearch] = useState('');
 
-  const { data: customers =[], isLoading, isError } = useQuery({
-    queryKey: ['customers'],
-    queryFn: fetchCustomers,
-  });
-
-  const filteredCustomers = customers.filter(c =>
-    c.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.phone_number.includes(searchTerm)
+  const filteredGuests = guests?.filter(
+    (g) => g.full_name.toLowerCase().includes(search.toLowerCase()) || g.phone_number.includes(search)
   );
 
-  if (isLoading) return <div className="p-6 text-gray-500">Loading customers...</div>;
-  if (isError) return <div className="p-6 text-red-500">Failed to load customers.</div>;
-
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[#121212] flex items-center gap-2">
-            <Users className="text-[#FF6B00]" /> Customers Directory
-          </h1>
-          <p className="text-sm text-gray-500">Manage your restaurant's customer base and loyalty points.</p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 className="text-2xl font-bold text-brand-dark flex items-center gap-2">
+          <Users className="text-brand-orange" /> Guest Directory
+        </h2>
+        
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search guests..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-orange transition-all bg-white"
+          />
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        {/* Toolbar */}
-        <div className="p-4 border-b border-gray-100 flex items-center">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search by name or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FF6B00]"
-            />
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 text-gray-600 text-sm border-b border-gray-200">
-                <th className="px-6 py-3 font-medium">Name</th>
-                <th className="px-6 py-3 font-medium">Phone Number</th>
-                <th className="px-6 py-3 font-medium">Email</th>
-                <th className="px-6 py-3 font-medium text-right">Loyalty Points</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredCustomers.length === 0 ? (
+      <m.div className="bg-white rounded-2xl shadow-subtle border border-stone-200 overflow-hidden">
+        {isLoading ? (
+          <SkeletonTable rows={8} />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-stone-600">
+              <thead className="bg-stone-50 border-b border-stone-200">
                 <tr>
-                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500">
-                    No customers found.
-                  </td>
+                  <th className="px-6 py-4 font-bold text-brand-dark">Full Name</th>
+                  <th className="px-6 py-4 font-bold text-brand-dark">Contact</th>
+                  <th className="px-6 py-4 font-bold text-brand-dark text-center">Nationality</th>
+                  <th className="px-6 py-4 font-bold text-brand-dark text-right">Total Spend</th>
+                  <th className="px-6 py-4 font-bold text-brand-dark text-right">Loyalty Points</th>
                 </tr>
-              ) : (
-                filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-[#121212]">{customer.full_name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{customer.phone_number}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{customer.email || '-'}</td>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {filteredGuests?.map((guest) => (
+                  <tr key={guest.id} className="hover:bg-stone-50 transition-colors">
+                    <td className="px-6 py-4 font-bold text-brand-dark">{guest.full_name}</td>
+                    <td className="px-6 py-4">
+                      <div>{guest.phone_number}</div>
+                      <div className="text-xs text-stone-400">{guest.email}</div>
+                    </td>
+                    <td className="px-6 py-4 text-center">{guest.nationality || '-'}</td>
+                    <td className="px-6 py-4 text-right font-medium">${(guest.total_spend_usd_cents / 100).toFixed(2)}</td>
                     <td className="px-6 py-4 text-right">
-                      <span className="inline-flex items-center gap-1 font-semibold text-[#FF6B00]">
-                        <Award size={16} /> {customer.loyalty_points}
+                      <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-1 rounded-full font-bold border border-amber-200">
+                        <Award size={14} /> {guest.loyalty_points}
                       </span>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                ))}
+              </tbody>
+            </table>
+            {filteredGuests?.length === 0 && (
+              <div className="p-12 text-center text-stone-500">
+                No guests found.
+              </div>
+            )}
+          </div>
+        )}
+      </m.div>
     </div>
   );
 };

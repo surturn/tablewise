@@ -3,6 +3,6 @@
 Run from repository root with:
     PYTHONPATH=backend python scripts/seed_grandplatform.py
 """
-from scripts.seed_grandplatform import main
+from backend.app.seed_grandplatform import main
 
 __all__ = ["main"]

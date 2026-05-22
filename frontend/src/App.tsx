@@ -1,25 +1,25 @@
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import AppRouter from './routes/AppRouter';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MotionProvider } from './components/ui/MotionConfig';
+import { ToastContainer } from './components/ui/Toast';
 import CartDrawer from './components/Cart/CartDrawer';
+import { AuthProvider } from './contexts/AuthContext';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
-const App: React.FC = () => {
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppRouter />
-      {/* Mount the CartDrawer globally so it can open from anywhere */}
-      <CartDrawer />
+      <MotionProvider>
+        <AuthProvider>
+          <AppRouter />
+          <CartDrawer />
+          <ToastContainer />
+        </AuthProvider>
+      </MotionProvider>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;

@@ -10,6 +10,7 @@ class UserRole(str, enum.Enum):
     bartender = "bartender"
     waiter = "waiter"
     rider = "rider"
+    customer = "customer"
 
     # Backward-compatible aliases used by older code paths/tests.
     OWNER = "owner"

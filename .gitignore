@@ -7,6 +7,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 /frontend/.env
+/frontend/.env.production
+/frontend/.env.local
 /frontend/node_modules/
 # IDE
 .vscode/
@@ -15,5 +17,6 @@ __pycache__/
 !backend/alembic/env.py
 !backend/alembic/alembic.ini
 !backend/alembic/script.py.mako
+.env
 
 /frontend/dist/

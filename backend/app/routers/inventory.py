@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
-from app.schemas.common import PaginatedResponse
+from app.schemas.common import PaginatedResponse, paginate_response
 from app.schemas.inventory import InventoryItemCreate, InventoryItemResponse, InventoryItemUpdate
 from app.services import inventory_service
 from app.routers.deps import require_roles
@@ -21,11 +21,12 @@ async def create_inventory_item(item_in: InventoryItemCreate, db: AsyncSession =
 
 
 @router.get("/", response_model=PaginatedResponse[InventoryItemResponse])
-async def list_inventory(outlet_id: Optional[uuid.UUID] = Query(None), page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=200), db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.restaurant_manager, UserRole.bartender]))):
+async def list_inventory(outlet_id: Optional[uuid.UUID] = Query(None), page: int = Query(1, ge=1), limit: int = Query(50, ge=1, le=1000), db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.restaurant_manager, UserRole.bartender]))):
     query_outlet = outlet_id
     if current_user.role not in [UserRole.owner, UserRole.hotel_manager]:
         query_outlet = current_user.outlet_id
-    return await inventory_service.get_items(db, outlet_id=query_outlet, page=page, limit=limit)
+    items, total = await inventory_service.get_items(db, outlet_id=query_outlet, page=page, limit=limit)
+    return paginate_response(items, total, page, limit)
 
 
 @router.patch("/{item_id}/stock", response_model=InventoryItemResponse)

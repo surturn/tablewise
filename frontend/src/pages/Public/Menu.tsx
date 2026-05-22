@@ -1,26 +1,33 @@
 import React from 'react';
-import { useMenuItems } from '../../api/menu';
 import { useQuery } from '@tanstack/react-query';
-import { fetchBranches } from '../../api/branches';
+import { m } from 'framer-motion';
+import { useMenuItems } from '../../api/menu';
+import { fetchOutlets } from '../../api/outlets';
 import { useCartStore } from '../../store/cartStore';
+import { useToastStore } from '../../store/toastStore';
 import Navbar from '../../components/Layout/Navbar';
+import { SkeletonCard } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { Coffee, ShoppingBag } from 'lucide-react';
 
 const Menu: React.FC = () => {
-  const { data: outlets = [] } = useQuery({ queryKey: ['outlets'], queryFn: fetchBranches });
+  const { data: outlets = [] } = useQuery({ queryKey: ['outlets'], queryFn: fetchOutlets });
   const selectedOutletId = outlets[0]?.id;
   const { data: menuItems, isLoading, error } = useMenuItems(selectedOutletId);
   const addItem = useCartStore((state) => state.addItem);
-  const setBranch = useCartStore((state) => state.setBranch);
+  const setOutlet = useCartStore((state) => state.setOutlet);
+  const addToast = useToastStore((state) => state.addToast);
 
   const handleAddToCart = (item: any) => {
     addItem({
       menu_item_id: item.id,
       name: item.name,
-      price: item.price_usd_cents / 100,
+      price_usd_cents: item.price_usd_cents,
       quantity: 1,
       outlet_id: selectedOutletId,
     });
-    if (selectedOutletId) setBranch(selectedOutletId);
+    if (selectedOutletId) setOutlet(selectedOutletId);
+    addToast(`Added ${item.name} to cart`, 'success');
   };
 
   return (
@@ -28,45 +35,75 @@ const Menu: React.FC = () => {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-bold text-brand-dark mb-8">Our Menu</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-brand-dark">Our Menu</h1>
+          {selectedOutletId && (
+            <span className="text-sm font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full">
+              Ordering from: {outlets[0]?.name}
+            </span>
+          )}
+        </div>
 
-        {isLoading && <p className="text-gray-500 text-center">Select an outlet to load the GrandPlatform menu...</p>}
-        {error && <p className="text-red-500 text-center">Failed to load menu. Is the backend running?</p>}
+        {error && (
+          <div className="mb-8">
+            <EmptyState 
+              icon={<Coffee />} 
+              title="Failed to load menu" 
+              description="Is the backend running? Please try again later." 
+            />
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {menuItems?.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {isLoading && Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+          
+          {!isLoading && menuItems?.map((item, i) => (
+            <m.div 
+              key={item.id} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -4 }}
+              className="bg-white rounded-2xl shadow-subtle overflow-hidden border border-stone-100 flex flex-col"
+            >
               {item.image_url ? (
                 <img src={item.image_url} alt={item.name} className="w-full h-48 object-cover" />
               ) : (
-                <div className="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
-                  No Image
+                <div className="w-full h-48 bg-stone-100 flex items-center justify-center text-stone-400 shrink-0">
+                  <Coffee size={32} opacity={0.2} />
                 </div>
               )}
 
-              <div className="p-5">
-                <h3 className="text-lg font-bold text-brand-dark">{item.name}</h3>
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2 min-h-[40px]">
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-lg font-bold text-brand-dark leading-tight">{item.name}</h3>
+                <p className="text-sm text-stone-500 mt-2 line-clamp-2 min-h-[40px] flex-1">
                   {item.description || 'Delicious meal prepared fresh.'}
                 </p>
 
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xl font-bold text-brand-orange">USD {(item.price_usd_cents / 100).toFixed(2)}</span>
+                <div className="mt-6 flex items-center justify-between">
+                  <span className="text-xl font-black text-brand-orange">
+                    ${(item.price_usd_cents / 100).toFixed(2)}
+                  </span>
                   <button
                     onClick={() => handleAddToCart(item)}
-                    className="px-4 py-2 bg-brand-dark text-white text-sm font-medium rounded hover:bg-brand-orange transition-colors"
+                    className="p-2.5 bg-brand-dark text-brand-light rounded-full hover:bg-brand-orange transition-colors"
+                    aria-label="Add to cart"
                   >
-                    Add to Cart
+                    <ShoppingBag size={20} />
                   </button>
                 </div>
               </div>
-            </div>
+            </m.div>
           ))}
-
-          {menuItems?.length === 0 && (
-            <p className="col-span-full text-center text-gray-500 py-10">No items available right now.</p>
-          )}
         </div>
+
+        {!isLoading && menuItems?.length === 0 && (
+          <EmptyState 
+            icon={<Coffee />} 
+            title="Menu is empty" 
+            description="No items available right now at this outlet." 
+          />
+        )}
       </main>
     </div>
   );
