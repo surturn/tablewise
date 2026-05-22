@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchAnalyticsOverview } from '../../api/analytics';
 import { useAuthStore } from '../../store/authStore';
 import { StatCard } from '../../components/ui/StatCard';
+import { BackendStatus } from '../../components/ui/BackendStatus';
 import { DollarSign, ShoppingBag, Users, CalendarCheck } from 'lucide-react';
 import { SkeletonCard } from '../../components/ui/Skeleton';
 
@@ -60,6 +61,11 @@ const DashboardHome: React.FC = () => {
           icon={<CalendarCheck size={24} />}
           delay={0.4}
         />
+      </div>
+
+      {/* Live backend connection status — visible during investor demos */}
+      <div className="max-w-sm">
+        <BackendStatus />
       </div>
     </div>
   );

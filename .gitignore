@@ -7,6 +7,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 /frontend/.env
+/frontend/.env.production
+/frontend/.env.local
 /frontend/node_modules/
 # IDE
 .vscode/

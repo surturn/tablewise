@@ -1,7 +1,15 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+/**
+ * Base URL of the FastAPI backend (no trailing slash, no /api/v1).
+ * Set VITE_API_BASE_URL in the Vercel Dashboard for production,
+ * e.g. "https://tablewise-api.onrender.com".
+ * Falls back to localhost for local development.
+ */
+const API_URL = (
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+).replace(/\/+$/, '');
 
 // Create a configured Axios instance
 export const apiClient = axios.create({

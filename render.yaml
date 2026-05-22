@@ -73,6 +73,12 @@ services:
       - key: REDIS_URL
         value: ""
 
+      # ── CORS (your Vercel frontend URL) ──
+      # Set this to your actual Vercel domain once deployed, e.g.:
+      # '["https://tablewise.vercel.app","https://your-custom-domain.com"]'
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+
       # ── Third-party keys (set via Render Dashboard > Environment) ──
       - key: STRIPE_SECRET_KEY
         sync: false           # Prompt to enter manually on first deploy
@@ -92,3 +98,4 @@ services:
         sync: false
       - key: SENDGRID_API_KEY
         sync: false
+
