@@ -7,9 +7,15 @@ import { useAuthStore } from '../store/authStore';
  * e.g. "https://tablewise-api.onrender.com".
  * Falls back to localhost for local development.
  */
-const API_URL = (
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-).replace(/\/+$/, '');
+let _baseUrl = import.meta.env.VITE_API_BASE_URL;
+if (!_baseUrl) {
+  if (import.meta.env.PROD) {
+    throw new Error('VITE_API_BASE_URL is missing in production environment variables.');
+  } else {
+    _baseUrl = 'http://localhost:8000';
+  }
+}
+const API_URL = _baseUrl.replace(/\/+$/, '');
 
 // Create a configured Axios instance
 export const apiClient = axios.create({

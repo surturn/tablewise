@@ -7,7 +7,15 @@ export function useOrdersWebSocket(outletId?: string) {
 
   useEffect(() => {
     if (!outletId) return;
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || window.location.origin;
+    let baseUrl = import.meta.env.VITE_API_BASE_URL;
+    if (!baseUrl) {
+      if (import.meta.env.PROD) {
+        console.error('VITE_API_BASE_URL is missing in production environment variables.');
+        return;
+      } else {
+        baseUrl = 'http://localhost:8000';
+      }
+    }
     const wsUrl = baseUrl.replace(/^http/, 'ws') + `/ws/orders/${outletId}`;
     const socket = new WebSocket(wsUrl);
 

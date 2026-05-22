@@ -27,13 +27,24 @@ export const BackendStatus: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
 
-  const API_URL = (
-    import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-  ).replace(/\/+$/, '');
+  let API_URL = import.meta.env.VITE_API_BASE_URL;
+  if (!API_URL && !import.meta.env.PROD) {
+    API_URL = 'http://localhost:8000';
+  }
+  if (API_URL) {
+    API_URL = API_URL.replace(/\/+$/, '');
+  }
 
   const checkHealth = async () => {
     setState('checking');
     setError('');
+
+    if (!API_URL) {
+      setState('failed');
+      setError('Configuration Error: VITE_API_BASE_URL is missing in production env.');
+      return;
+    }
+
     const start = performance.now();
 
     try {
