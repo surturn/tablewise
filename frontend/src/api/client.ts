@@ -28,10 +28,11 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !error.config.url?.includes('/auth/login')) {
+    if (error.response?.status === 401 && !error.config.url?.includes('/auth/login') && !error.config.url?.includes('/auth/customer/login')) {
       // Token expired or invalid -> force logout
+      const role = useAuthStore.getState().user?.role;
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      window.location.href = role && role !== 'customer' ? '/staff/login' : '/login';
     }
     return Promise.reject(error);
   }

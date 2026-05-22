@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Union
 import uuid
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -9,6 +9,7 @@ import pydantic
 from app.database import get_db
 from app.config import settings
 from app.models.user import User
+from app.models.customer import Guest
 from app.models.enums import UserRole
 from app.utils.jwt import decode_access_token
 from app.schemas.token import TokenPayload
@@ -22,11 +23,11 @@ optional_oauth2 = OAuth2PasswordBearer(
 )
 
 
-async def get_current_user(
+async def get_current_account(
         db: AsyncSession = Depends(get_db),
         token: str = Depends(reusable_oauth2)
-) -> User:
-    """Dependency to extract and validate the user from the JWT token."""
+) -> Union[User, Guest]:
+    """Dependency to extract and validate the account from the JWT token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -42,17 +43,34 @@ async def get_current_user(
     except pydantic.ValidationError:
         raise credentials_exception
 
-    if token_data.sub is None:
+    if token_data.sub is None or token_data.account_type is None:
         raise credentials_exception
 
-    # Query the user from the DB to ensure they still exist
-    result = await db.execute(select(User).where(User.id == uuid.UUID(token_data.sub)))
-    user = result.scalars().first()
-
-    if not user:
+    if token_data.account_type == "staff":
+        result = await db.execute(select(User).where(User.id == uuid.UUID(token_data.sub)))
+        account = result.scalars().first()
+    elif token_data.account_type == "guest":
+        result = await db.execute(select(Guest).where(Guest.id == uuid.UUID(token_data.sub)))
+        account = result.scalars().first()
+    else:
         raise credentials_exception
 
-    return user
+    if not account:
+        raise credentials_exception
+
+    return account
+
+
+async def get_current_user(
+        account: Union[User, Guest] = Depends(get_current_account)
+) -> User:
+    """Dependency to extract and validate the user from the JWT token."""
+    if not isinstance(account, User):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough privileges"
+        )
+    return account
 
 
 async def get_optional_current_user(

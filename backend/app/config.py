@@ -1,4 +1,27 @@
+import re
+
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _normalize_async_url(url: str) -> str:
+    """
+    Render (and Heroku) inject DATABASE_URL as:
+        postgres://user:pass@host:5432/db
+    or  postgresql://user:pass@host:5432/db
+
+    SQLAlchemy ≥ 1.4 requires an explicit driver suffix.
+    This helper rewrites to ``postgresql+asyncpg://...`` for the async engine.
+    """
+    return re.sub(r"^postgres(ql)?://", "postgresql+asyncpg://", url)
+
+
+def _normalize_sync_url(url: str) -> str:
+    """
+    Return a *synchronous* URL for Alembic CLI (uses psycopg2 by default).
+    Rewrites to ``postgresql://...`` (no driver suffix = psycopg2).
+    """
+    return re.sub(r"^postgres(ql)?(\+\w+)?://", "postgresql://", url)
 
 
 class Settings(BaseSettings):
@@ -39,7 +62,7 @@ class Settings(BaseSettings):
     # ----------------------
     # REDIS
     # ----------------------
-    REDIS_URL: str
+    REDIS_URL: str = ""
 
     CELERY_BROKER_URL: str = "redis://redis:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://redis:6379/2"
@@ -63,6 +86,23 @@ class Settings(BaseSettings):
 
     AT_USERNAME: str = "sandbox"
     AT_API_KEY: str = "mock_key"
+
+    # ──────────────────────────────────────────────
+    # Computed URLs (normalised for Render compatibility)
+    # ──────────────────────────────────────────────
+    SYNC_DATABASE_URL: str = ""
+
+    @model_validator(mode="after")
+    def _fix_database_urls(self) -> "Settings":
+        """
+        Normalise DATABASE_URL coming from Render / Heroku so that:
+        • DATABASE_URL      → uses ``postgresql+asyncpg://`` (for the async engine)
+        • SYNC_DATABASE_URL → uses ``postgresql://``         (for Alembic CLI / psycopg2)
+        """
+        raw = self.DATABASE_URL
+        self.DATABASE_URL = _normalize_async_url(raw)
+        self.SYNC_DATABASE_URL = _normalize_sync_url(raw)
+        return self
 
     # ----------------------
     # Pydantic Config

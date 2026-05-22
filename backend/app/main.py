@@ -2,7 +2,7 @@ import uuid
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import auth, branches, menu, inventory, customers, orders, payments, analytics, rooms, bookings
+from app.routers import auth, customer_auth, branches, menu, inventory, customers, orders, payments, analytics, rooms, bookings
 from app.websocket_manager import order_ws_manager
 
 app = FastAPI(title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json", docs_url="/docs", redoc_url="/redoc")
@@ -19,7 +19,32 @@ app.add_middleware(
 
 @app.get("/health", tags=["Health"])
 async def health_check():
-    return {"status": "healthy", "environment": settings.ENVIRONMENT, "project": settings.PROJECT_NAME}
+    """
+    Health-check endpoint used by Render to verify the service is alive.
+    Performs a lightweight SELECT 1 to prove DB connectivity.
+    """
+    from app.database import AsyncSessionLocal
+    from sqlalchemy import text
+
+    db_status = "healthy"
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("SELECT 1"))
+    except Exception as exc:
+        db_status = f"unhealthy: {exc}"
+
+    payload = {
+        "status": "healthy" if db_status == "healthy" else "degraded",
+        "database": db_status,
+        "environment": settings.ENVIRONMENT,
+        "project": settings.PROJECT_NAME,
+    }
+
+    if db_status != "healthy":
+        from fastapi.responses import JSONResponse
+        return JSONResponse(content=payload, status_code=503)
+
+    return payload
 
 
 @app.websocket("/ws/orders/{outlet_id}")
@@ -33,6 +58,7 @@ async def orders_websocket_root(outlet_id: uuid.UUID, websocket: WebSocket):
 
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])
+app.include_router(customer_auth.router, prefix=f"{settings.API_V1_STR}/auth/customer", tags=["Customer Authentication"])
 app.include_router(branches.router, prefix=f"{settings.API_V1_STR}/outlets", tags=["Outlets"])
 app.include_router(branches.router, prefix=f"{settings.API_V1_STR}/branches", tags=["Legacy Branches"])
 app.include_router(menu.router, prefix=f"{settings.API_V1_STR}/menu", tags=["Menu"])
