@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, Menu as MenuIcon, X } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
+import { useAuth } from '../../contexts/AuthContext';
 import { m, useScroll, useTransform } from 'framer-motion';
 
 const Navbar: React.FC = () => {
   const { items, toggleCart } = useCartStore();
+  const { isAuthenticated, user, isStaff } = useAuth();
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
   const { scrollY } = useScroll();
   const bgOpacity = useTransform(scrollY, [0, 50], [0, 1]);
@@ -30,11 +32,26 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
 
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex space-x-8 items-center">
             <Link to="/" className="text-stone-600 hover:text-brand-orange transition-colors font-medium text-sm">Home</Link>
             <Link to="/menu" className="text-stone-600 hover:text-brand-orange transition-colors font-medium text-sm">Menu</Link>
             <Link to="/book" className="text-stone-600 hover:text-brand-orange transition-colors font-medium text-sm">Book a Room</Link>
-            <Link to="/login" className="text-stone-600 hover:text-brand-orange transition-colors font-medium text-sm">Staff Login</Link>
+            
+            <div className="h-4 w-px bg-stone-300 mx-2"></div>
+            
+            {isAuthenticated ? (
+              <Link to={isStaff() ? "/dashboard" : "/"} className="flex items-center gap-2 text-stone-600 hover:text-brand-orange transition-colors font-medium text-sm">
+                <div className="w-6 h-6 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                  {user?.full_name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <span>{user?.full_name?.split(' ')[0]}</span>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" className="text-stone-600 hover:text-brand-orange transition-colors font-medium text-sm">Log In</Link>
+                <Link to="/login" className="bg-brand-dark text-white hover:bg-black px-4 py-2 rounded-full transition-colors font-medium text-sm">Sign Up</Link>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -74,7 +91,17 @@ const Navbar: React.FC = () => {
           <Link to="/" className="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-brand-orange hover:bg-stone-50">Home</Link>
           <Link to="/menu" className="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-brand-orange hover:bg-stone-50">Menu</Link>
           <Link to="/book" className="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-brand-orange hover:bg-stone-50">Book a Room</Link>
-          <Link to="/login" className="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-brand-orange hover:bg-stone-50">Staff Login</Link>
+          <div className="border-t border-stone-100 my-2 pt-2"></div>
+          {isAuthenticated ? (
+            <Link to={isStaff() ? "/dashboard" : "/"} className="block px-3 py-2 rounded-md text-base font-medium text-brand-orange hover:bg-stone-50">
+              Welcome, {user?.full_name?.split(' ')[0]}
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-brand-orange hover:bg-stone-50">Log In</Link>
+              <Link to="/login" className="block px-3 py-2 rounded-md text-base font-medium text-stone-700 hover:text-brand-orange hover:bg-stone-50">Sign Up</Link>
+            </>
+          )}
         </div>
       </m.div>
     </m.nav>

@@ -5,11 +5,11 @@ from app.config import settings
 from app.models.enums import UserRole
 
 
-def create_access_token(subject: str | Any, role: UserRole, outlet_id: Optional[str] = None, expires_delta: Optional[timedelta] = None, **legacy) -> str:
+def create_access_token(subject: str | Any, role: UserRole, outlet_id: Optional[str] = None, expires_delta: Optional[timedelta] = None, account_type: str = "staff", **legacy) -> str:
     if outlet_id is None:
         outlet_id = legacy.get("branch_id")
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode = {"exp": expire, "sub": str(subject), "role": role.value, "outlet_id": str(outlet_id) if outlet_id else None}
+    to_encode = {"exp": expire, "sub": str(subject), "role": role.value, "outlet_id": str(outlet_id) if outlet_id else None, "account_type": account_type}
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 

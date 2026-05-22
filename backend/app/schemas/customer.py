@@ -19,10 +19,23 @@ class GuestResponse(GuestBase):
     id: uuid.UUID
     loyalty_points: int
     total_spend_usd_cents: int
+    is_active: bool
     model_config = ConfigDict(from_attributes=True)
 
 
+# Auth schemas
+class CustomerRegister(BaseModel):
+    phone_number: str
+    full_name: str
+    email: EmailStr
+    password: str
+
+
+class CustomerLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+
+# Aliases for semantic clarity elsewhere in the codebase
 CustomerCreate = GuestCreate
 CustomerResponse = GuestResponse
-GuestCreate = GuestCreate
-GuestResponse = GuestResponse

@@ -9,7 +9,9 @@ from app.services.auth_service import authenticate_user
 from app.utils.jwt import create_access_token
 from app.schemas.token import Token
 from app.schemas.user import UserResponse
-from app.routers.deps import get_current_active_user
+from app.schemas.customer import CustomerResponse
+from app.routers.deps import get_current_active_user, get_current_account
+from typing import Union
 
 router = APIRouter()
 
@@ -54,11 +56,13 @@ async def login_access_token(
     }
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_logged_in_user(
-        current_user: UserResponse = Depends(get_current_active_user)
+@router.get("/me", response_model=Union[UserResponse, CustomerResponse])
+async def get_logged_in_account(
+        current_account: Union[UserResponse, CustomerResponse] = Depends(get_current_account) # type: ignore
 ):
     """
-    Test access token and return the currently logged-in user's profile.
+    Test access token and return the currently logged-in account's profile.
     """
-    return current_user
+    if not current_account.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive account")
+    return current_account
