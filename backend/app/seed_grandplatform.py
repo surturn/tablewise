@@ -36,7 +36,7 @@ async def main() -> None:
             rooms.append(Room(room_type_id=room_type.id, room_number=f"{100 + index}", floor=1 if index <= 5 else 2, status=RoomStatus.available))
         db.add_all(rooms)
 
-        owner = User(email="owner@grandplatform.com", hashed_password=get_password_hash("GrandPlatform@2026"), full_name="Grand Platform Owner", phone_number="+211900000000", role=UserRole.owner, is_active=True, outlet_id=None)
+        owner = User(email="owner@grandplatform.com", hashed_password=get_password_hash("mBHT2Lm-D-zuYw2AM5xmWQ"), full_name="Grand Platform Owner", phone_number="+211900000000", role=UserRole.owner, is_active=True, outlet_id=None)
         db.add(owner)
         await db.commit()
         print("Seeded GrandPlatform property, outlets, rooms, and owner account.")

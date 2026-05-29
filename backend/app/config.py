@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     # ----------------------
     # SECURITY
     # ----------------------
-    SECRET_KEY: str = "dev-secret-change-me"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
@@ -71,22 +71,22 @@ class Settings(BaseSettings):
     # ----------------------
     # PAYMENTS
     # ----------------------
-    STRIPE_SECRET_KEY: str = "sk_test_mock"
-    STRIPE_PUBLISHABLE_KEY: str = "pk_test_mock"
-    STRIPE_WEBHOOK_SECRET: str = "whsec_mock"
+    STRIPE_SECRET_KEY: str
+    STRIPE_PUBLISHABLE_KEY: str
+    STRIPE_WEBHOOK_SECRET: str
 
     # ----------------------
     # AI / EMAIL / SMS
     # ----------------------
-    ANTHROPIC_API_KEY: str = "mock_key"
+    ANTHROPIC_API_KEY: str
 
-    SENDGRID_API_KEY: str = "mock_key"
+    SENDGRID_API_KEY: str
 
-    AFRICASTALKING_USERNAME: str = "sandbox"
-    AFRICASTALKING_API_KEY: str = "mock_key"
+    AFRICASTALKING_USERNAME: str
+    AFRICASTALKING_API_KEY: str
 
-    AT_USERNAME: str = "sandbox"
-    AT_API_KEY: str = "mock_key"
+    AT_USERNAME: str
+    AT_API_KEY: str
 
     # ──────────────────────────────────────────────
     # Computed URLs (normalised for Render compatibility)
