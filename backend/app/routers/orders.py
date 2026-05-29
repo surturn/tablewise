@@ -9,9 +9,11 @@ from app.config import settings
 from app.schemas.common import PaginatedResponse, paginate_response
 from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 from app.services import order_service
-from app.routers.deps import require_roles, get_optional_current_user
+from app.routers.deps import require_roles, get_optional_current_user, get_current_customer, get_current_user_or_customer
 from app.models.enums import UserRole
 from app.models.user import User
+from app.models.customer import Guest
+from typing import Union
 from app.models.order import Order
 from app.websocket_manager import order_ws_manager
 
@@ -19,10 +21,14 @@ router = APIRouter()
 
 
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
-async def create_order(order_in: OrderCreate, db: AsyncSession = Depends(get_db), current_user: Optional[User] = Depends(get_optional_current_user)):
-    staff_roles = {UserRole.hotel_manager, UserRole.restaurant_manager, UserRole.receptionist, UserRole.chef, UserRole.bartender, UserRole.waiter, UserRole.rider}
-    cashier_id = current_user.id if current_user and current_user.role in staff_roles else None
-    return await order_service.create_order(db, order_in, cashier_id=cashier_id, current_user=current_user)
+async def create_order(
+    order_in: OrderCreate,
+    db: AsyncSession = Depends(get_db),
+    current_customer: Guest = Depends(get_current_customer)
+):
+    # Customer strictly authenticated via JWT. Guest ID is bound from the token.
+    order_in.guest_id = current_customer.id
+    return await order_service.create_order(db, order_in, cashier_id=None, current_user=None)
 
 
 @router.get("/", response_model=PaginatedResponse[OrderResponse])
@@ -41,10 +47,22 @@ async def list_orders(
 
 
 @router.get("/{order_id}", response_model=OrderResponse)
-async def get_order(order_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+async def get_order(
+    order_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_account: Union[User, Guest] = Depends(get_current_user_or_customer)
+):
     order = await order_service.get_order(db, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+        
+    if isinstance(current_account, Guest):
+        if order.customer_id != current_account.id:
+            raise HTTPException(status_code=403, detail="Not authorized to view this order")
+    else:
+        if current_account.role != UserRole.owner and current_account.outlet_id and order.outlet_id != current_account.outlet_id:
+            raise HTTPException(status_code=403, detail="Not authorized to view orders for this outlet")
+            
     return order
 
 

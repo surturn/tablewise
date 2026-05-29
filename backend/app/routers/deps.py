@@ -73,6 +73,25 @@ async def get_current_user(
     return account
 
 
+async def get_current_customer(
+        account: Union[User, Guest] = Depends(get_current_account)
+) -> Guest:
+    """Dependency to extract and validate the customer (guest) from the JWT token."""
+    if not isinstance(account, Guest):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Operation requires a customer account"
+        )
+    return account
+
+
+async def get_current_user_or_customer(
+        account: Union[User, Guest] = Depends(get_current_account)
+) -> Union[User, Guest]:
+    """Dependency that allows either authenticated staff or customers."""
+    return account
+
+
 async def get_optional_current_user(
         db: AsyncSession = Depends(get_db),
         token: str | None = Depends(optional_oauth2)
@@ -80,10 +99,33 @@ async def get_optional_current_user(
     if not token:
         return None
     payload = decode_access_token(token)
-    if payload is None or payload.get("sub") is None:
+    if payload is None or payload.get("sub") is None or payload.get("account_type") != "staff":
         return None
     result = await db.execute(select(User).where(User.id == uuid.UUID(payload["sub"])))
     return result.scalars().first()
+
+
+async def get_optional_current_account(
+        db: AsyncSession = Depends(get_db),
+        token: str | None = Depends(optional_oauth2)
+) -> Union[User, Guest, None]:
+    if not token:
+        return None
+    payload = decode_access_token(token)
+    if payload is None or payload.get("sub") is None:
+        return None
+        
+    account_type = payload.get("account_type")
+    sub = uuid.UUID(payload["sub"])
+    
+    if account_type == "staff":
+        result = await db.execute(select(User).where(User.id == sub))
+        return result.scalars().first()
+    elif account_type == "guest":
+        result = await db.execute(select(Guest).where(Guest.id == sub))
+        return result.scalars().first()
+        
+
 
 
 async def get_current_active_user(

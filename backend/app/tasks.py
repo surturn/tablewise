@@ -5,8 +5,9 @@ import re
 import uuid
 from typing import Any
 import africastalking
+from datetime import datetime, timezone
 from anthropic import AsyncAnthropic
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import selectinload
 from app.celery_worker import celery_app
 from app.config import settings
@@ -16,6 +17,7 @@ from app.models.operations import AuditLog, StockMovement
 from app.models.order import Order
 from app.models.order_item import OrderItem
 from app.models.menu_item import MenuItem
+from app.models.invite import InviteToken
 
 logger = logging.getLogger(__name__)
 africastalking.initialize(settings.AFRICASTALKING_USERNAME or settings.AT_USERNAME, settings.AFRICASTALKING_API_KEY or settings.AT_API_KEY)
@@ -138,3 +140,23 @@ def _write_audit_sync(action: str, entity_type: str, entity_id: str | None, new_
             db.add(AuditLog(action=action, entity_type=entity_type, entity_id=uuid.UUID(entity_id) if entity_id else None, new_value=new_value))
             await db.commit()
     asyncio.run(_write())
+
+@celery_app.task(name="app.tasks.cleanup_expired_invites")
+def cleanup_expired_invites():
+    """Celery beat task that runs hourly to purge expired invite tokens."""
+    return asyncio.run(_cleanup_expired_invites_async())
+
+async def _cleanup_expired_invites_async():
+    async with AsyncSessionLocal() as db:
+        current_time_utc = datetime.now(timezone.utc)
+        
+        # Delete all tokens where the expiration time is in the past
+        query = delete(InviteToken).where(InviteToken.expires_at < current_time_utc)
+        result = await db.execute(query)
+        
+        deleted_count = result.rowcount
+        await db.commit()
+        
+        logger.info(f"Cleaned up {deleted_count} expired invite tokens.")
+        return {"status": "success", "deleted_count": deleted_count}
+
