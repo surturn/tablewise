@@ -13,9 +13,10 @@ from app.models.payment import Payment
 from app.models.delivery_tracking import DeliveryTracking
 from app.models.rooms import RoomType, Room, Booking, BookingExtra
 from app.models.operations import Shift, StockMovement, AuditLog
+from app.models.invite import InviteToken
 
 __all__ = [
     "Base", "Property", "Outlet", "Branch", "User", "Guest", "Customer", "MenuCategory", "MenuItem",
     "InventoryItem", "Order", "OrderItem", "Payment", "DeliveryTracking", "RoomType", "Room",
-    "Booking", "BookingExtra", "Shift", "StockMovement", "AuditLog",
+    "Booking", "BookingExtra", "Shift", "StockMovement", "AuditLog", "InviteToken",
 ]

@@ -10,7 +10,14 @@ from app.utils.jwt import create_access_token
 from app.schemas.token import Token
 from app.schemas.user import UserResponse
 from app.schemas.customer import CustomerResponse
+from app.schemas.invite import InviteCreate, InviteResponse, RegisterWithToken
 from app.routers.deps import get_current_active_user, get_current_account
+from app.models.user import User
+from app.models.enums import UserRole
+from app.services.invite_service import create_invite, approve_invite, consume_invite, validate_invite
+from app.services.email_verification_service import create_verification_token, verify_email_token
+from app.utils.security import get_password_hash
+from sqlalchemy import select
 from typing import Union
 
 router = APIRouter()
@@ -79,3 +86,86 @@ async def get_logged_in_account(
     if not current_account.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive account")
     return current_account
+
+
+@router.post("/invite", response_model=InviteResponse, status_code=status.HTTP_201_CREATED)
+async def create_new_invite(
+    invite_data: InviteCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Create a new invite token.
+    Managers can create them (pending approval). Owners create them auto-approved.
+    """
+    if current_user.role not in [UserRole.owner, UserRole.hotel_manager, UserRole.restaurant_manager]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to create invites")
+        
+    return await create_invite(db, invite_data, current_user)
+
+
+@router.put("/invite/{token}/approve", response_model=InviteResponse)
+async def approve_pending_invite(
+    token: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Approve a pending invite token (Owner only).
+    """
+    return await approve_invite(db, token, current_user)
+
+
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+async def register_with_invite(
+    data: RegisterWithToken,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Register a new staff member using a valid, approved invite token.
+    Role and outlet_id are strictly derived from the token.
+    Account is created as inactive until email verification.
+    """
+    # 1. Validate the invite token (this ensures it exists, is approved, unused, and not expired)
+    invite = await validate_invite(db, data.token)
+    
+    # 2. Ensure email is not already taken
+    result = await db.execute(select(User).where(User.email == data.email))
+    if result.scalars().first():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+        
+    # 3. Create the user
+    new_user = User(
+        email=data.email,
+        full_name=data.full_name,
+        phone_number=data.phone_number,
+        hashed_password=get_password_hash(data.password),
+        role=invite.role,
+        outlet_id=invite.outlet_id,
+        is_active=False  # Requires email verification
+    )
+    db.add(new_user)
+    
+    # 4. Consume the invite token
+    invite.is_used = True
+    
+    await db.commit()
+    await db.refresh(new_user)
+    
+    # 5. Generate email verification token (in a real app, send this via email)
+    verification_token = create_verification_token(new_user.email)
+    logger.info(f"Verification token generated for {new_user.email}: {verification_token}")
+    
+    return new_user
+
+
+@router.get("/verify-email")
+async def verify_email(
+    token: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Verify user email via the signed token sent to their inbox.
+    """
+    user = await verify_email_token(db, token)
+    return {"msg": "Email successfully verified. You can now log in."}
