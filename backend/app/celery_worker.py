@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.schedules import crontab
 from app.config import settings
 
 celery_app = Celery("grandplatform_tasks", broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND)
@@ -19,3 +20,10 @@ celery_app.conf.update(
     },
     task_queue_max_priority={"sms": 10, "default": 5, "ai_tasks": 1},
 )
+
+celery_app.conf.beat_schedule = {
+    "cleanup-expired-invites-hourly": {
+        "task": "app.tasks.cleanup_expired_invites",
+        "schedule": crontab(minute=0),
+    },
+}

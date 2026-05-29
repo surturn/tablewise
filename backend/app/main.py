@@ -47,14 +47,7 @@ async def health_check():
     return payload
 
 
-@app.websocket("/ws/orders/{outlet_id}")
-async def orders_websocket_root(outlet_id: uuid.UUID, websocket: WebSocket):
-    await order_ws_manager.connect(outlet_id, websocket)
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        order_ws_manager.disconnect(outlet_id, websocket)
+
 
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["Authentication"])

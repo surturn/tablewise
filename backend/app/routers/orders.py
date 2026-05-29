@@ -2,13 +2,17 @@ import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, Query, WebSocket, WebSocketDisconnect, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import get_db
+from sqlalchemy import select
+from jose import jwt, JWTError
+from app.database import get_db, AsyncSessionLocal
+from app.config import settings
 from app.schemas.common import PaginatedResponse, paginate_response
 from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 from app.services import order_service
 from app.routers.deps import require_roles, get_optional_current_user
 from app.models.enums import UserRole
 from app.models.user import User
+from app.models.order import Order
 from app.websocket_manager import order_ws_manager
 
 router = APIRouter()
@@ -50,10 +54,73 @@ async def update_order_status(order_id: uuid.UUID, status_update: OrderStatusUpd
 
 
 @router.websocket("/ws/orders/{outlet_id}")
-async def orders_websocket(outlet_id: uuid.UUID, websocket: WebSocket):
-    await order_ws_manager.connect(outlet_id, websocket)
+async def orders_websocket(
+    websocket: WebSocket,
+    outlet_id: uuid.UUID,
+    token: Optional[str] = Query(None)
+):
+    client_ip = websocket.client.host if websocket.client else "unknown"
+    
+    # 1. IP Connection Limiting (Max 10)
+    if not order_ws_manager.check_ip_limit(client_ip, limit=10):
+        await websocket.close(code=4001, reason="Too many concurrent connections from this IP")
+        return
+
+    # 2. Extract Token
+    if not token:
+        await websocket.close(code=4001, reason="Authentication token missing")
+        return
+
+    # 3. Validate JWT via python-jose
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id_str: str = payload.get("sub")
+        role_str: str = payload.get("role")
+        token_outlet_id: Optional[str] = payload.get("outlet_id")
+        
+        if not user_id_str or not role_str:
+            raise JWTError("Missing required claims")
+    except JWTError:
+        await websocket.close(code=4001, reason="Invalid or expired token")
+        return
+
+    # 4. Strict Authorization Rules
+    is_authorized = False
+    
+    if role_str == UserRole.customer.value:
+        # Customer: Must have at least one active order at this outlet
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(Order).where(
+                    Order.customer_id == uuid.UUID(user_id_str),
+                    Order.outlet_id == outlet_id,
+                    Order.status.not_in(['delivered', 'payment_failed', 'expired', 'cancelled'])
+                ).limit(1)
+            )
+            if result.scalars().first():
+                is_authorized = True
+    else:
+        # Staff: Must be an allowed role + scoped to this outlet
+        allowed_roles = {
+            UserRole.chef.value, 
+            UserRole.restaurant_manager.value, 
+            UserRole.owner.value,
+            "kitchen_display"
+        }
+        if role_str in allowed_roles:
+            if role_str == UserRole.owner.value or token_outlet_id == str(outlet_id):
+                is_authorized = True
+
+    if not is_authorized:
+        await websocket.close(code=4001, reason="Unauthorized access for this outlet")
+        return
+
+    # 5. Connect and Manage WebSocket
+    await websocket.accept()
+    order_ws_manager.connect(outlet_id, websocket, client_ip)
+    
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        order_ws_manager.disconnect(outlet_id, websocket)
+        order_ws_manager.disconnect(outlet_id, websocket, client_ip)
