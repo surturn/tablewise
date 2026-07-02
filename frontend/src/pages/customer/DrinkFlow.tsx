@@ -71,7 +71,7 @@ const DrinkFlow: React.FC = () => {
           unit_price: i.item.price_usd_cents / 100,
           special_instructions: ''
         })),
-        payment_method: 'card', // Stubbed payment step
+        payment_method: 'cash', // TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx)
         order_type: 'dine_in',
         is_delivery: false,
       };
@@ -156,14 +156,12 @@ const DrinkFlow: React.FC = () => {
               <span className="text-3xl font-black text-brand-dark">${total.toFixed(2)}</span>
             </div>
 
-            {/* Stubbed Payment Details */}
+            {/* TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx) */}
             <div className="mb-8">
               <p className="text-sm font-bold text-stone-700 mb-3">Payment Method</p>
               <div className="border border-brand-orange bg-amber-50/30 p-4 rounded-xl flex items-center gap-3">
-                <CreditCard className="text-brand-orange" />
                 <div>
-                  <p className="font-bold text-stone-900 text-sm">Card ending in 4242</p>
-                  <p className="text-xs text-stone-500">Expires 12/24</p>
+                  <p className="font-bold text-stone-900 text-sm">Pay with cash at the bar</p>
                 </div>
                 <div className="ml-auto w-5 h-5 rounded-full bg-brand-orange text-white flex items-center justify-center">
                   <CheckCircle2 size={12} />

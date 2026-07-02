@@ -1,7 +1,10 @@
+import { useQuery } from '@tanstack/react-query';
 import { apiClient } from './client';
 import { queueOrderWhenOffline } from '../utils/offlineOrderQueue';
 
-export type PaymentProvider = 'cash' | 'mobile_money' | 'stripe';
+// 'mpesa' is the only mobile-money provider today (Safaricom Daraja STK Push).
+// Extend this union when a second provider (e.g. a global card processor) ships.
+export type PaymentProvider = 'cash' | 'mpesa';
 
 export interface CheckoutPayload {
   outlet_id: string;
@@ -52,4 +55,37 @@ export async function processCheckout(
   };
   
   return submitCheckoutOrder(payload);
+}
+
+export interface PaymentIntent {
+  checkout_request_id: string;
+  merchant_request_id: string;
+  amount_usd_cents: number;
+}
+
+export async function initiatePayment(
+  entityType: 'order' | 'booking',
+  entityId: string,
+  phoneNumber: string,
+): Promise<PaymentIntent> {
+  const { data } = await apiClient.post('/payments/payment-intent', {
+    entity_type: entityType,
+    entity_id: entityId,
+    phone_number: phoneNumber,
+  });
+  return data;
+}
+
+// Polls order status while an M-Pesa STK push is awaiting confirmation.
+// Stops polling once the order leaves 'pending_payment'.
+export function useOrderPaymentStatus(orderId?: string, enabled = false) {
+  return useQuery({
+    queryKey: ['order-payment-status', orderId],
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/orders/${orderId}`);
+      return data;
+    },
+    enabled: Boolean(orderId) && enabled,
+    refetchInterval: (query) => (query.state.data?.status === 'pending_payment' ? 3000 : false),
+  });
 }
