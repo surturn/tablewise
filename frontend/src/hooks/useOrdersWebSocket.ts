@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { PaginatedOrders, Order } from '../api/orders';
+import { useAuthStore } from '../store/authStore';
 
 export function useOrdersWebSocket(outletId?: string) {
   const queryClient = useQueryClient();
@@ -26,19 +27,9 @@ export function useOrdersWebSocket(outletId?: string) {
     const connect = () => {
       if (!isMounted) return;
 
-      // Extract JWT securely (handles plain token storage or Zustand persisted state)
-      let token = '';
-      const authStorage = localStorage.getItem('auth-storage');
-      if (authStorage) {
-        try {
-          const parsed = JSON.parse(authStorage);
-          token = parsed.state?.token || parsed.token || '';
-        } catch (e) {
-          token = localStorage.getItem('token') || '';
-        }
-      } else {
-        token = localStorage.getItem('token') || '';
-      }
+      // Single source of truth for the auth token: the Zustand store itself,
+      // not a manual re-parse of its persisted localStorage key.
+      const token = useAuthStore.getState().token;
 
       if (!token) {
         console.error("WebSocket blocked: Auth token missing");
