@@ -23,7 +23,7 @@ class OrderCreate(BaseModel):
     guest_id: Optional[uuid.UUID] = None
     guest: Optional[OrderGuestCreate] = None
     items: List[OrderItemCreate]
-    payment_method: PaymentMethod = PaymentMethod.stripe
+    payment_method: PaymentMethod = PaymentMethod.mpesa
     order_type: OrderType = OrderType.takeaway
     table_number: Optional[str] = None
     room_id: Optional[uuid.UUID] = None

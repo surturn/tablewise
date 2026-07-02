@@ -13,7 +13,7 @@ Grand Platform is a unified hospitality management system for a hotel property i
 
 | Gap | Refactor response |
 | --- | --- |
-| Over-reliance on Stripe | Keep Stripe as primary card rail, add cash-on-delivery/front-desk settlement, and route mobile money through a provider abstraction. |
+| Stripe unavailable in Kenya | Switched to M-Pesa (Safaricom Daraja STK Push) as the primary payment rail, keep cash-on-delivery/front-desk settlement, and route future providers (e.g. a global card processor once selected) through the same provider abstraction. |
 | Lack of offline functionality | Use persisted cart state in the public UI now; next POS phase adds IndexedDB order queue, offline order IDs, batch sync, and conflict resolution. |
 | AI lacks validation | AI outputs must validate against typed schemas, confidence thresholds, bounded horizons, USD currency, and data-quality notes before workflows use them. |
 | Limited infrastructure scaling plan | Run FastAPI, Celery workers, Redis, PostgreSQL, and frontend separately; scale web and worker replicas independently behind Cloudflare CDN. |
@@ -30,10 +30,10 @@ Grand Platform is a unified hospitality management system for a hotel property i
 
 ## Payment plan
 
-- **Stripe:** primary global card payments in USD cents through hosted Checkout.
+- **M-Pesa:** primary payment rail via Safaricom Daraja STK Push (phone-number-initiated, server-confirmed via callback). Amounts still tracked in USD cents internally; STK push converts to KES at request time.
 - **Cash:** fallback for delivery, reception, and table-close settlement.
-- **Mobile money:** provider abstraction for Africa's Talking collections, M-Pesa compatibility, and future South Sudan wallet providers.
-- **Reconciliation:** every `Payment` stores method, status, provider reference, phone/session IDs, and external reference for audit matching.
+- **Future providers:** a global card processor is still being researched (Stripe doesn't serve Kenya) — the payment service is structured so a new provider is a new service module plus a `PaymentMethod` enum value, not a rewrite.
+- **Reconciliation:** every `Payment` stores method, status, provider reference (`mpesa_checkout_request_id`/`mpesa_receipt_number`), phone number, and audit log entries for matching.
 
 ## AI data and accuracy framework
 

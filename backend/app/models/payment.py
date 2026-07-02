@@ -16,8 +16,10 @@ class Payment(Base, BaseModelMixin):
     amount_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod), nullable=False)
     status: Mapped[PaymentStatus] = mapped_column(SQLEnum(PaymentStatus), default=PaymentStatus.pending, index=True)
-    stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True, nullable=True)
-    stripe_charge_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    mpesa_checkout_request_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True, nullable=True)
+    mpesa_merchant_request_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    mpesa_receipt_number: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    phone_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     receipt_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     @property

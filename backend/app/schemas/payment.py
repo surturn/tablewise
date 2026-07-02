@@ -1,19 +1,19 @@
 import uuid
 from typing import Any, Dict, Optional
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, Field
 from app.models.enums import PaymentEntityType, PaymentMethod, PaymentStatus
 
 
 class PaymentIntentRequest(BaseModel):
     entity_type: PaymentEntityType
     entity_id: uuid.UUID
-    customer_email: EmailStr
+    phone_number: str
     metadata: Dict[str, str] = Field(default_factory=dict)
 
 
 class PaymentIntentResponse(BaseModel):
-    payment_intent_id: str
-    client_secret: str
+    checkout_request_id: str
+    merchant_request_id: str
     amount_usd_cents: int
 
 
@@ -32,7 +32,9 @@ class PaymentResponse(BaseModel):
     amount_usd_cents: int
     method: PaymentMethod
     status: PaymentStatus
-    stripe_payment_intent_id: Optional[str] = None
-    stripe_charge_id: Optional[str] = None
+    mpesa_checkout_request_id: Optional[str] = None
+    mpesa_merchant_request_id: Optional[str] = None
+    mpesa_receipt_number: Optional[str] = None
+    phone_number: Optional[str] = None
     receipt_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)

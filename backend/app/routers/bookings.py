@@ -78,8 +78,8 @@ async def add_booking_extra(booking_id: uuid.UUID, extra: BookingExtraCreate, db
 
 @router.post("/{booking_id}/payment-intent", response_model=PaymentIntentResponse)
 async def create_booking_payment_intent(
-    booking_id: uuid.UUID, 
-    customer_email: str, 
+    booking_id: uuid.UUID,
+    phone_number: str,
     db: AsyncSession = Depends(get_db),
     current_account: Union[User, Guest] = Depends(get_current_user_or_customer)
 ):
@@ -93,7 +93,7 @@ async def create_booking_payment_intent(
     if isinstance(current_account, Guest) and booking.guest_id != current_account.id:
         raise HTTPException(status_code=403, detail="Not authorized to pay for this booking")
         
-    return await payment_service.create_payment_intent_for_entity(db, PaymentEntityType.booking, booking_id, customer_email, {})
+    return await payment_service.create_payment_intent_for_entity(db, PaymentEntityType.booking, booking_id, phone_number, {})
 
 
 @router.get("/calendar", response_model=PaginatedResponse[BookingResponse])

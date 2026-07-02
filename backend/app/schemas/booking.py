@@ -41,7 +41,7 @@ class BookingResponse(BaseModel):
     status: BookingStatus
     total_usd_cents: int
     payment_status: BookingPaymentStatus
-    stripe_payment_intent_id: Optional[str] = None
+    mpesa_checkout_request_id: Optional[str] = None
     notes: Optional[str] = None
     extras: list[BookingExtraResponse] = []
     model_config = ConfigDict(from_attributes=True)
