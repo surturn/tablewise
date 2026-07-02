@@ -147,6 +147,19 @@ async def handle_mpesa_callback(db: AsyncSession, payload: dict[str, Any]) -> di
 
     if result_code == 0:
         items = _callback_items(callback)
+        callback_amount = items.get("Amount")
+        expected_amount = max(1, round(payment.amount_usd_cents / 100))
+
+        if callback_amount is not None and round(float(callback_amount)) != expected_amount:
+            logger.error(
+                "M-Pesa callback amount mismatch for CheckoutRequestID=%s: expected %s, got %s. "
+                "Payment left pending for manual reconciliation.",
+                checkout_request_id,
+                expected_amount,
+                callback_amount,
+            )
+            return ack
+
         await payment_service.handle_payment_success(
             db, payment, mpesa_receipt_number=items.get("MpesaReceiptNumber")
         )

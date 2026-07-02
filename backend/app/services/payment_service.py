@@ -49,6 +49,9 @@ async def handle_payment_success(db: AsyncSession, payment: Payment, mpesa_recei
 
 
 async def handle_payment_failure(db: AsyncSession, payment: Payment, reason: Optional[str] = None) -> None:
+    if payment.status == PaymentStatus.success:
+        return
+
     payment.status = PaymentStatus.failed
     if payment.entity_type == PaymentEntityType.order:
         order = await db.get(Order, payment.entity_id)

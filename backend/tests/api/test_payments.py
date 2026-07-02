@@ -137,3 +137,93 @@ async def test_mpesa_callback_failure(async_client: AsyncClient, db_session: Asy
 
     assert payment.status == PaymentStatus.failed
     assert order.status == OrderStatus.PAYMENT_FAILED
+
+
+@pytest.mark.asyncio
+async def test_mpesa_callback_amount_mismatch_left_pending(async_client: AsyncClient, db_session: AsyncSession):
+    """A success callback whose Amount disagrees with the stored payment is not applied."""
+    order = await _setup_order(db_session)
+
+    checkout_request_id = "ws_CO_amount_mismatch"
+    payment = Payment(
+        entity_type="order",
+        entity_id=order.id,
+        amount_usd_cents=10000,  # expected KES 100
+        method=PaymentMethod.mpesa,
+        status=PaymentStatus.pending,
+        mpesa_checkout_request_id=checkout_request_id,
+        mpesa_merchant_request_id="29115-34620561-3",
+        phone_number="0700111222",
+    )
+    db_session.add(payment)
+    await db_session.commit()
+
+    webhook_payload = {
+        "Body": {
+            "stkCallback": {
+                "MerchantRequestID": "29115-34620561-3",
+                "CheckoutRequestID": checkout_request_id,
+                "ResultCode": 0,
+                "ResultDesc": "The service request is processed successfully.",
+                "CallbackMetadata": {
+                    "Item": [
+                        {"Name": "Amount", "Value": 1},  # attacker/glitch sends KES 1 instead of 100
+                        {"Name": "MpesaReceiptNumber", "Value": "FORGED123"},
+                    ]
+                },
+            }
+        }
+    }
+
+    response = await async_client.post(f"{settings.API_V1_STR}/payments/mpesa/callback", json=webhook_payload)
+    assert response.status_code == 200
+    assert response.json()["ResultCode"] == 0  # still ack Safaricom to avoid retries
+
+    await db_session.refresh(payment)
+    await db_session.refresh(order)
+
+    assert payment.status == PaymentStatus.pending
+    assert payment.mpesa_receipt_number is None
+    assert order.status == OrderStatus.PENDING_PAYMENT
+
+
+@pytest.mark.asyncio
+async def test_mpesa_late_failure_callback_does_not_override_success(async_client: AsyncClient, db_session: AsyncSession):
+    """A duplicate/late failure callback must not downgrade an already-successful payment."""
+    order = await _setup_order(db_session)
+
+    checkout_request_id = "ws_CO_late_failure"
+    payment = Payment(
+        entity_type="order",
+        entity_id=order.id,
+        amount_usd_cents=10000,
+        method=PaymentMethod.mpesa,
+        status=PaymentStatus.success,
+        mpesa_checkout_request_id=checkout_request_id,
+        mpesa_merchant_request_id="29115-34620561-4",
+        mpesa_receipt_number="REAL_RECEIPT",
+        phone_number="0700111222",
+    )
+    db_session.add(payment)
+    order.status = OrderStatus.PAID
+    await db_session.commit()
+
+    webhook_payload = {
+        "Body": {
+            "stkCallback": {
+                "MerchantRequestID": "29115-34620561-4",
+                "CheckoutRequestID": checkout_request_id,
+                "ResultCode": 1032,
+                "ResultDesc": "Request cancelled by user.",
+            }
+        }
+    }
+
+    response = await async_client.post(f"{settings.API_V1_STR}/payments/mpesa/callback", json=webhook_payload)
+    assert response.status_code == 200
+
+    await db_session.refresh(payment)
+    await db_session.refresh(order)
+
+    assert payment.status == PaymentStatus.success
+    assert order.status == OrderStatus.PAID
