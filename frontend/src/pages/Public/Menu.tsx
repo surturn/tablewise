@@ -5,7 +5,6 @@ import { useMenuItems } from '../../api/menu';
 import { fetchOutlets } from '../../api/outlets';
 import { useCartStore } from '../../store/cartStore';
 import { useToastStore } from '../../store/toastStore';
-import Navbar from '../../components/Layout/Navbar';
 import { SkeletonCard } from '../../components/ui/Skeleton';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Coffee, ShoppingBag } from 'lucide-react';
@@ -31,8 +30,7 @@ const Menu: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-light">
-      <Navbar />
+    <div className="min-h-screen bg-stone-50 pt-20 pb-24">
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-8">

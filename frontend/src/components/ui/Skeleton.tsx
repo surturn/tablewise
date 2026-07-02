@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 export const Skeleton: React.FC<{ className?: string }> = ({ className }) => {
   return (
-    <div className={clsx("shimmer bg-gray-200 rounded", className)} />
+    <div className={clsx("animate-pulse bg-stone-200 rounded", className)} />
   );
 };
 

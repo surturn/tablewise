@@ -1,4 +1,3 @@
-import React from 'react';
 import { cn } from './ProductCard';
 
 type StatusType = 'pending' | 'preparing' | 'ready' | 'delivered' | 'cancelled' | 'paid';

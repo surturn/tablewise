@@ -1,4 +1,3 @@
-import React from 'react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -16,7 +15,7 @@ interface ProductCardProps {
   className?: string;
 }
 
-export function ProductCard({ id, name, price, image, description, onClick, className }: ProductCardProps) {
+export function ProductCard({ name, price, image, description, onClick, className }: ProductCardProps) {
   return (
     <div 
       onClick={onClick}

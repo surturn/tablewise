@@ -7,7 +7,8 @@ import { apiClient } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { SkeletonCard } from '../../components/ui/Skeleton';
-import { ShoppingBag, Clock } from 'lucide-react';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { ShoppingBag, CheckCircle } from 'lucide-react';
 import { useToastStore } from '../../store/toastStore';
 
 const OrdersFeed: React.FC = () => {
@@ -149,10 +150,21 @@ const OrdersFeed: React.FC = () => {
       )}
       
       {!isLoading && filteredOrders.length === 0 && (
-        <div className="bg-white border border-dashed border-stone-200 rounded-2xl p-12 text-center flex flex-col items-center">
-          <Clock size={48} className="text-stone-300 mb-4" />
-          <h3 className="text-lg font-bold text-brand-dark">No orders found</h3>
-          <p className="text-stone-500">Wait for new orders to arrive.</p>
+        <div className="py-12">
+          <EmptyState 
+            theme="light"
+            icon={
+              <m.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: [1.2, 1], opacity: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              >
+                <CheckCircle size={40} className="text-green-500" />
+              </m.div>
+            }
+            title={filter === 'completed' ? "No completed orders yet" : "Kitchen is all caught up!"}
+            description={filter === 'completed' ? "Completed orders will appear here." : "Awaiting the next wave of service. Take a breather!"}
+          />
         </div>
       )}
     </div>

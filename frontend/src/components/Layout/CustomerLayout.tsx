@@ -1,4 +1,3 @@
-import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { ShoppingCart, Menu as MenuIcon, User } from 'lucide-react';
 
