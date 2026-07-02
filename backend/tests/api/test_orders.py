@@ -44,12 +44,14 @@ async def test_order_creation_and_state_machine(async_client: AsyncClient, test_
     guest_token = guest_resp.json()["access_token"]
     guest_headers = {"Authorization": f"Bearer {guest_token}"}
 
-    # 3. Create Order as the guest
+    # 3. Create Order as the guest (cash: this test covers order totals/state machine,
+    # not payment initiation -- non-cash orders start PENDING_PAYMENT, see test_payments.py)
     order_payload = {
         "outlet_id": outlet_id,
         "items": [
             {"menu_item_id": item_id, "quantity": 2}  # 2 * $500.00 = $1000.00
         ],
+        "payment_method": "cash",
     }
     order_resp = await async_client.post(f"{settings.API_V1_STR}/orders/", json=order_payload, headers=guest_headers)
     assert order_resp.status_code == 201
