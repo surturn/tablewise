@@ -45,25 +45,31 @@ const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/staff/login" element={<StaffLogin />} />
 
-        {/* 1. Customer Flow (CustomerLayout) */}
+        {/* 1. Public Marketing Flow (CustomerLayout) */}
         <Route path="/" element={<CustomerLayout />}>
           <Route index element={<HomePage />} />
           <Route path="menu" element={<Menu />} />
           <Route path="book" element={<Book />} />
-          <Route path="customer/dashboard" element={
-            <ProtectedRoute roles={['customer']}><CustomerDashboard /></ProtectedRoute>
-          } />
-          <Route path="customer/dine" element={
-            <ProtectedRoute roles={['customer']}><DineFlow /></ProtectedRoute>
-          } />
-          <Route path="customer/drink" element={
-            <ProtectedRoute roles={['customer']}><DrinkFlow /></ProtectedRoute>
-          } />
-          <Route path="customer/stay" element={
-            <ProtectedRoute roles={['customer']}><StayFlow /></ProtectedRoute>
-          } />
-          {/* Add Cart/Checkout, Live Tracking, etc. here */}
         </Route>
+
+        {/* 1b. Authenticated Customer App Flow.
+            These pages each render their own complete chrome via
+            <CustomerNavbar/> (nav, cart, profile menu) - they don't nest
+            under CustomerLayout because CustomerLayout renders its own
+            separate marketing header, which would double up with
+            CustomerNavbar on every one of these pages. */}
+        <Route path="/customer/dashboard" element={
+          <ProtectedRoute roles={['customer']}><CustomerDashboard /></ProtectedRoute>
+        } />
+        <Route path="/customer/dine" element={
+          <ProtectedRoute roles={['customer']}><DineFlow /></ProtectedRoute>
+        } />
+        <Route path="/customer/drink" element={
+          <ProtectedRoute roles={['customer']}><DrinkFlow /></ProtectedRoute>
+        } />
+        <Route path="/customer/stay" element={
+          <ProtectedRoute roles={['customer']}><StayFlow /></ProtectedRoute>
+        } />
 
         {/* 2. Kitchen & FOH Flow (POSLayout) */}
         <Route path="/pos" element={
