@@ -31,14 +31,14 @@ const DrinkFlow: React.FC = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const outletsRes = await client.get('/api/v1/outlets');
+        const outletsRes = await client.get('/outlets');
         const defaultOutlet = outletsRes.data[0]?.id;
         setOutletId(defaultOutlet);
 
         if (defaultOutlet) {
           // Typically we'd filter for "Drinks" or "Bar" category if backend supported it natively by name.
           // For now, we fetch all items and simulate it.
-          const itemsRes = await client.get(`/api/v1/menu/items?outlet_id=${defaultOutlet}`);
+          const itemsRes = await client.get(`/menu/items?outlet_id=${defaultOutlet}`);
           setMenuItems(itemsRes.data);
         }
       } catch (err) {
@@ -80,7 +80,7 @@ const DrinkFlow: React.FC = () => {
       is_delivery: false,
     };
     try {
-      const res = await client.post('/api/v1/orders/', payload);
+      const res = await client.post('/orders/', payload);
       setPlacedOrder(res.data);
       setTabItems([]);
       setIsTabOpen(false);

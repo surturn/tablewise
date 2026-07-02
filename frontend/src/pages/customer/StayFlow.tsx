@@ -28,7 +28,7 @@ const StayFlow: React.FC = () => {
     const fetchRooms = async () => {
       try {
         setIsLoading(true);
-        const res = await client.get('/api/v1/room-types/');
+        const res = await client.get('/room-types/');
         setRoomTypes(res.data);
       } catch (err) {
         console.error("Failed to load rooms", err);
@@ -59,7 +59,7 @@ const StayFlow: React.FC = () => {
         extras: [],
         notes: ''
       };
-      const res = await client.post('/api/v1/bookings/', payload);
+      const res = await client.post('/bookings/', payload);
       setBookingConfirmed(res.data);
       setSelectedRoom(null);
     } catch (err) {
