@@ -7,10 +7,12 @@ import { SkeletonCard } from '../../components/ui/Skeleton';
 import { AnimatedPage, springs } from '../../components/ui/MotionConfig';
 import { apiClient as client } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToastStore } from '../../store/toastStore';
 import { format, addDays } from 'date-fns';
 
 const StayFlow: React.FC = () => {
   const { user } = useAuth();
+  const addToast = useToastStore((state) => state.addToast);
   const [roomTypes, setRoomTypes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -30,11 +32,13 @@ const StayFlow: React.FC = () => {
         setRoomTypes(res.data);
       } catch (err) {
         console.error("Failed to load rooms", err);
+        addToast('Could not load room availability. Please check your connection and try again.', 'error');
       } finally {
         setIsLoading(false);
       }
     };
     fetchRooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleBook = async (e: React.FormEvent) => {
@@ -60,6 +64,12 @@ const StayFlow: React.FC = () => {
       setSelectedRoom(null);
     } catch (err) {
       console.error("Failed to book room", err);
+      addToast(
+        !navigator.onLine
+          ? 'You are offline. Please reconnect and try booking again.'
+          : 'Failed to complete your booking. Please try again.',
+        'error'
+      );
     } finally {
       setIsBooking(false);
     }

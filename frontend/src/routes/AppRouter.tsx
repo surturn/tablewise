@@ -14,6 +14,9 @@ import HomePage from '../pages/Public/HomePage';
 import Menu from '../pages/Public/Menu';
 import Book from '../pages/Public/Book';
 import CustomerDashboard from '../pages/customer/CustomerDashboard';
+import DineFlow from '../pages/customer/DineFlow';
+import DrinkFlow from '../pages/customer/DrinkFlow';
+import StayFlow from '../pages/customer/StayFlow';
 
 // Auth
 import Login from '../pages/Auth/Login';
@@ -49,6 +52,15 @@ const AppRouter = () => {
           <Route path="book" element={<Book />} />
           <Route path="customer/dashboard" element={
             <ProtectedRoute roles={['customer']}><CustomerDashboard /></ProtectedRoute>
+          } />
+          <Route path="customer/dine" element={
+            <ProtectedRoute roles={['customer']}><DineFlow /></ProtectedRoute>
+          } />
+          <Route path="customer/drink" element={
+            <ProtectedRoute roles={['customer']}><DrinkFlow /></ProtectedRoute>
+          } />
+          <Route path="customer/stay" element={
+            <ProtectedRoute roles={['customer']}><StayFlow /></ProtectedRoute>
           } />
           {/* Add Cart/Checkout, Live Tracking, etc. here */}
         </Route>

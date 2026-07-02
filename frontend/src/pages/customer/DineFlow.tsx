@@ -8,10 +8,13 @@ import { springs } from '../../components/ui/MotionConfig';
 import { apiClient as client } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCartStore } from '../../store/cartStore';
+import { useToastStore } from '../../store/toastStore';
+import { queueOrderWhenOffline } from '../../utils/offlineOrderQueue';
 
 const DineFlow: React.FC = () => {
   const { user } = useAuth();
   const { items, addItem, clearCart } = useCartStore();
+  const addToast = useToastStore((state) => state.addToast);
   const [categories, setCategories] = useState<any[]>([]);
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -51,34 +54,35 @@ const DineFlow: React.FC = () => {
         }
       } catch (err) {
         console.error("Failed to load menu", err);
+        addToast('Could not load the menu. Please check your connection and try again.', 'error');
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePlaceOrder = async () => {
     if (!outletId) return;
     setIsPlacing(true);
+    const orderPayload = {
+      outlet_id: outletId,
+      guest_id: user?.id,
+      items: items.map(i => ({
+        menu_item_id: i.menu_item_id,
+        quantity: i.quantity,
+        unit_price: i.price_usd_cents / 100, // ignored by backend but required in schema shape
+        special_instructions: ''
+      })),
+      payment_method: 'cash', // Default stub
+      order_type: isDelivery ? 'delivery' : 'dine_in',
+      table_number: tableNumber || undefined,
+      is_delivery: isDelivery,
+      delivery_address: deliveryAddress || undefined,
+      notes: notes || undefined
+    };
     try {
-      const orderPayload = {
-        outlet_id: outletId,
-        guest_id: user?.id,
-        items: items.map(i => ({
-          menu_item_id: i.menu_item_id,
-          quantity: i.quantity,
-          unit_price: i.price_usd_cents / 100, // ignored by backend but required in schema shape
-          special_instructions: ''
-        })),
-        payment_method: 'cash', // Default stub
-        order_type: isDelivery ? 'delivery' : 'dine_in',
-        table_number: tableNumber || undefined,
-        is_delivery: isDelivery,
-        delivery_address: deliveryAddress || undefined,
-        notes: notes || undefined
-      };
-      
       const res = await client.post('/api/v1/orders/', orderPayload);
       setPlacedOrder(res.data);
       clearCart();
@@ -86,6 +90,15 @@ const DineFlow: React.FC = () => {
       setIsCheckout(false);
     } catch (err) {
       console.error("Failed to place order", err);
+      if (!navigator.onLine) {
+        await queueOrderWhenOffline(orderPayload);
+        addToast('You are offline. Order queued and will submit automatically once reconnected.', 'info');
+        clearCart();
+        setIsCartOpen(false);
+        setIsCheckout(false);
+      } else {
+        addToast('Failed to place your order. Please try again.', 'error');
+      }
     } finally {
       setIsPlacing(false);
     }

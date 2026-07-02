@@ -7,9 +7,12 @@ import { SkeletonCard } from '../../components/ui/Skeleton';
 import { AnimatedPage, springs } from '../../components/ui/MotionConfig';
 import { apiClient as client } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToastStore } from '../../store/toastStore';
+import { queueOrderWhenOffline } from '../../utils/offlineOrderQueue';
 
 const DrinkFlow: React.FC = () => {
   const { user } = useAuth();
+  const addToast = useToastStore((state) => state.addToast);
   
   // Local "Tab" State
   // We use local state since there is no backend endpoint to incrementally add items to an order.
@@ -40,11 +43,13 @@ const DrinkFlow: React.FC = () => {
         }
       } catch (err) {
         console.error("Failed to load menu", err);
+        addToast('Could not load the bar menu. Please check your connection and try again.', 'error');
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addToTab = (menuItem: any) => {
@@ -61,21 +66,20 @@ const DrinkFlow: React.FC = () => {
   const handleCloseTab = async () => {
     if (!outletId || tabItems.length === 0) return;
     setIsPlacing(true);
+    const payload = {
+      outlet_id: outletId,
+      guest_id: user?.id,
+      items: tabItems.map(i => ({
+        menu_item_id: i.item.id,
+        quantity: i.quantity,
+        unit_price: i.item.price_usd_cents / 100,
+        special_instructions: ''
+      })),
+      payment_method: 'cash', // TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx)
+      order_type: 'dine_in',
+      is_delivery: false,
+    };
     try {
-      const payload = {
-        outlet_id: outletId,
-        guest_id: user?.id,
-        items: tabItems.map(i => ({
-          menu_item_id: i.item.id,
-          quantity: i.quantity,
-          unit_price: i.item.price_usd_cents / 100,
-          special_instructions: ''
-        })),
-        payment_method: 'cash', // TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx)
-        order_type: 'dine_in',
-        is_delivery: false,
-      };
-      
       const res = await client.post('/api/v1/orders/', payload);
       setPlacedOrder(res.data);
       setTabItems([]);
@@ -83,6 +87,15 @@ const DrinkFlow: React.FC = () => {
       setIsCheckout(false);
     } catch (err) {
       console.error("Failed to close tab", err);
+      if (!navigator.onLine) {
+        await queueOrderWhenOffline(payload);
+        addToast('You are offline. Tab queued and will close automatically once reconnected.', 'info');
+        setTabItems([]);
+        setIsTabOpen(false);
+        setIsCheckout(false);
+      } else {
+        addToast('Failed to close your tab. Please try again.', 'error');
+      }
     } finally {
       setIsPlacing(false);
     }
