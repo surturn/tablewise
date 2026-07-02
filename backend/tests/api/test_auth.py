@@ -2,6 +2,7 @@ import pytest
 from httpx import AsyncClient
 from app.models.user import User
 from app.config import settings
+from app.rate_limit import limiter
 
 
 @pytest.mark.asyncio
@@ -51,3 +52,20 @@ async def test_get_me(async_client: AsyncClient, test_owner: User):
     assert user_data["email"] == test_owner.email
     assert user_data["role"] == test_owner.role.value
     assert "password" not in user_data  # Ensure password is not leaked!
+
+
+@pytest.mark.asyncio
+async def test_login_rate_limited_after_repeated_attempts(async_client: AsyncClient, test_owner: User):
+    """Integration test: brute-forcing /auth/login gets blocked with 429 after the threshold."""
+    limiter.reset()  # isolate from rate-limit state accumulated by earlier tests in this session
+
+    login_data = {"username": "owner@tablewise.com", "password": "wrongpassword"}
+
+    for _ in range(5):
+        response = await async_client.post(f"{settings.API_V1_STR}/auth/login", data=login_data)
+        assert response.status_code == 401
+
+    blocked_response = await async_client.post(f"{settings.API_V1_STR}/auth/login", data=login_data)
+    assert blocked_response.status_code == 429
+
+    limiter.reset()  # don't leak this test's state into whatever runs after it
