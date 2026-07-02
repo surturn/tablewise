@@ -1,6 +1,6 @@
 import re
 
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -43,10 +43,10 @@ class Settings(BaseSettings):
     # ----------------------
     # SECURITY
     # ----------------------
-    SECRET_KEY: str
+    SECRET_KEY: str = Field(repr=False)
     ALGORITHM: str = "HS256"
     CAPTCHA_ENABLED: bool = False
-    HCAPTCHA_SECRET: str = "0x0000000000000000000000000000000000000000"
+    HCAPTCHA_SECRET: str = Field(default="0x0000000000000000000000000000000000000000", repr=False)
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -55,12 +55,12 @@ class Settings(BaseSettings):
     # POSTGRES
     # ----------------------
     POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
+    POSTGRES_PASSWORD: str = Field(repr=False)
     POSTGRES_DB: str
     POSTGRES_HOST: str
     POSTGRES_PORT: int
 
-    DATABASE_URL: str
+    DATABASE_URL: str = Field(repr=False)
 
     # ----------------------
     # REDIS
@@ -71,29 +71,32 @@ class Settings(BaseSettings):
     CELERY_RESULT_BACKEND: str = "redis://redis:6379/2"
 
     # ----------------------
-    # PAYMENTS
+    # PAYMENTS (M-Pesa / Safaricom Daraja)
     # ----------------------
-    STRIPE_SECRET_KEY: str
-    STRIPE_PUBLISHABLE_KEY: str
-    STRIPE_WEBHOOK_SECRET: str
+    MPESA_CONSUMER_KEY: str = Field(repr=False)
+    MPESA_CONSUMER_SECRET: str = Field(repr=False)
+    MPESA_SHORTCODE: str
+    MPESA_PASSKEY: str = Field(repr=False)
+    MPESA_CALLBACK_URL: str
+    MPESA_ENV: str = "sandbox"
 
     # ----------------------
     # AI / EMAIL / SMS
     # ----------------------
-    ANTHROPIC_API_KEY: str
+    ANTHROPIC_API_KEY: str = Field(repr=False)
 
-    SENDGRID_API_KEY: str
+    SENDGRID_API_KEY: str = Field(repr=False)
 
     AFRICASTALKING_USERNAME: str
-    AFRICASTALKING_API_KEY: str
+    AFRICASTALKING_API_KEY: str = Field(repr=False)
 
     AT_USERNAME: str
-    AT_API_KEY: str
+    AT_API_KEY: str = Field(repr=False)
 
     # ──────────────────────────────────────────────
     # Computed URLs (normalised for Render compatibility)
     # ──────────────────────────────────────────────
-    SYNC_DATABASE_URL: str = ""
+    SYNC_DATABASE_URL: str = Field(default="", repr=False)
 
     @model_validator(mode="after")
     def _fix_database_urls(self) -> "Settings":

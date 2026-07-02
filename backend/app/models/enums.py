@@ -81,11 +81,8 @@ class PaymentStatus(str, enum.Enum):
 
 
 class PaymentMethod(str, enum.Enum):
-    stripe = "stripe"
+    mpesa = "mpesa"
     cash = "cash"
-
-    CARD = "stripe"
-    CASH = "cash"
 
 
 class PaymentEntityType(str, enum.Enum):
