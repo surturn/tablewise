@@ -1,10 +1,11 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
 from app.config import settings
+from app.rate_limit import limiter
 from app.models.customer import Guest
 from app.models.enums import UserRole
 from app.schemas.token import Token
@@ -96,7 +97,9 @@ async def customer_register(
 
 
 @router.post("/login", response_model=Token)
+@limiter.limit("5/15minutes")
 async def customer_login(
+    request: Request,
     payload: CustomerLogin,
     db: AsyncSession = Depends(get_db),
 ):

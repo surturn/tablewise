@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
-import { X, Plus, Minus, ShoppingBag, CreditCard, Banknote, Smartphone } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X, Plus, Minus, ShoppingBag, Banknote, Smartphone } from 'lucide-react';
 import { m, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../../store/cartStore';
 import { useToastStore } from '../../store/toastStore';
-import { processCheckout, PaymentProvider } from '../../api/checkout';
+import { processCheckout, initiatePayment, useOrderPaymentStatus, PaymentProvider } from '../../api/checkout';
 import { springs } from '../ui/MotionConfig';
+import { EmptyState } from '../ui/EmptyState';
 
 const CartDrawer: React.FC = () => {
   const { isOpen, closeCart, items, updateQuantity, getTotalCents, clearCart } = useCartStore();
   const addToast = useToastStore((state) => state.addToast);
+  const navigate = useNavigate();
 
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentProvider>('cash');
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+
+  const { data: pendingOrder } = useOrderPaymentStatus(pendingOrderId ?? undefined, Boolean(pendingOrderId));
+
+  useEffect(() => {
+    if (!pendingOrder || pendingOrder.status === 'pending_payment') return;
+    if (pendingOrder.status === 'paid' || pendingOrder.status === 'confirmed') {
+      addToast('Payment received! Order confirmed.', 'success');
+      setPendingOrderId(null);
+      clearCart();
+      closeCart();
+    } else if (pendingOrder.status === 'payment_failed') {
+      addToast('M-Pesa payment failed or was cancelled. Please try again.', 'error');
+      setPendingOrderId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingOrder]);
 
   const handleCheckout = async () => {
     if (!phone || !name) {
@@ -24,12 +44,19 @@ const CartDrawer: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await processCheckout(phone, name, items, paymentMethod);
-      addToast('Order created successfully!', 'success');
-      setTimeout(() => {
-        clearCart();
-        closeCart();
-      }, 3000);
+      const order = await processCheckout(phone, name, items, paymentMethod);
+
+      if (paymentMethod === 'mpesa') {
+        await initiatePayment('order', order.id, phone);
+        addToast('Check your phone to complete the M-Pesa payment.', 'info');
+        setPendingOrderId(order.id);
+      } else {
+        addToast('Order created successfully!', 'success');
+        setTimeout(() => {
+          clearCart();
+          closeCart();
+        }, 3000);
+      }
     } catch (error: any) {
       if (error.message === 'OFFLINE_QUEUED') {
         addToast('You are offline. Order queued for later sync.', 'info');
@@ -74,9 +101,26 @@ const CartDrawer: React.FC = () => {
 
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-stone-400">
-                  <ShoppingBag size={48} className="mb-4 opacity-20" />
-                  <p>Your cart is empty.</p>
+                <div className="flex items-center justify-center h-full">
+                  <EmptyState 
+                    theme="dark"
+                    icon={<ShoppingBag size={32} />}
+                    title="Your tray is empty"
+                    description="Your palate is waiting. Let's fix that by adding some delicious items to your order."
+                    action={
+                      <m.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          closeCart();
+                          navigate('/menu');
+                        }}
+                        className="mt-4 bg-brand-orange hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-colors"
+                      >
+                        Browse Menu
+                      </m.button>
+                    }
+                  />
                 </div>
               ) : (
                 items.map((item) => (
@@ -126,10 +170,9 @@ const CartDrawer: React.FC = () => {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-2 pt-2">
+                  <div className="grid grid-cols-2 gap-2 pt-2">
                     {[
-                      { id: 'stripe', label: 'Card', icon: CreditCard },
-                      { id: 'mobile_money', label: 'Mobile', icon: Smartphone },
+                      { id: 'mpesa', label: 'M-Pesa', icon: Smartphone },
                       { id: 'cash', label: 'Cash', icon: Banknote },
                     ].map(({ id, label, icon: Icon }) => (
                       <button
@@ -143,14 +186,20 @@ const CartDrawer: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                  
-                  <button
-                    onClick={handleCheckout}
-                    disabled={isLoading}
-                    className="w-full mt-4 bg-brand-dark hover:bg-black text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0 flex justify-center items-center"
-                  >
-                    {isLoading ? 'Processing...' : 'Place Order'}
-                  </button>
+
+                  {pendingOrderId ? (
+                    <div className="w-full mt-4 bg-amber-50 border border-amber-200 text-amber-700 font-bold py-4 rounded-xl text-center text-sm">
+                      Check your phone to complete payment...
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleCheckout}
+                      disabled={isLoading}
+                      className="w-full mt-4 bg-brand-dark hover:bg-black text-white font-bold py-4 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0 flex justify-center items-center"
+                    >
+                      {isLoading ? 'Processing...' : 'Place Order'}
+                    </button>
+                  )}
                 </div>
               </div>
             )}

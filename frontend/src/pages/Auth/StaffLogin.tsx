@@ -38,7 +38,11 @@ const StaffLogin: React.FC = () => {
       
       contextLogin(access_token, user);
       addToast(`Welcome back, ${user.full_name}!`, 'success');
-      redirectBasedOnRole();
+      // Pass the role explicitly: AuthContext's `role` state hasn't applied
+      // yet at this point (setRole() inside contextLogin() is an async state
+      // update), so reading it from the hook here would use the stale
+      // pre-login value and misroute every staff login.
+      redirectBasedOnRole(undefined, user.role);
     } catch (err: any) {
       console.error("Login failed:", err);
       addToast('Invalid email or password', 'error');

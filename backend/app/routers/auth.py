@@ -1,10 +1,11 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.config import settings
+from app.rate_limit import limiter
 from app.services.auth_service import authenticate_user
 from app.utils.jwt import create_access_token
 from app.schemas.token import Token
@@ -27,7 +28,9 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/login", response_model=Token)
+@limiter.limit("5/15minutes")
 async def login_access_token(
+        request: Request,
         db: AsyncSession = Depends(get_db),
         form_data: OAuth2PasswordRequestForm = Depends()
 ):
@@ -35,31 +38,17 @@ async def login_access_token(
     OAuth2 compatible token login. Get an access token for future requests.
     Note: OAuth2PasswordRequestForm uses 'username' field, which we map to 'email'.
     """
-    logger.warning(f"AUTH TRACE: Incoming login request. Parsed form_data.username='{form_data.username}'")
-    
-    result = await db.execute(select(User).where(User.email == form_data.username))
-    user_obj = result.scalars().first()
-    
-    logger.warning(f"AUTH TRACE: User DB lookup result: {user_obj}")
-    
     user = await authenticate_user(db, email=form_data.username, password=form_data.password)
-    
+
     if user is None:
-        if user_obj is None:
-            logger.error("AUTH TRACE: 401 Unauthorized - User not found in database.")
-        else:
-            logger.error("AUTH TRACE: 401 Unauthorized - User found, but password verification failed.")
-            
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     elif not user.is_active:
-        logger.error("AUTH TRACE: 400 Bad Request - User is inactive.")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
 
-    logger.warning("AUTH TRACE: Authentication successful. Generating token.")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
     # Generate JWT containing ID, Role, and Outlet
@@ -152,9 +141,14 @@ async def register_with_invite(
     await db.commit()
     await db.refresh(new_user)
     
-    # 5. Generate email verification token (in a real app, send this via email)
+    # 5. Generate email verification token.
+    # TODO: wire this into an actual email delivery (SendGrid); until then it is
+    # only surfaced in non-production logs so local/dev flows remain testable.
     verification_token = create_verification_token(new_user.email)
-    logger.info(f"Verification token generated for {new_user.email}: {verification_token}")
+    if settings.ENVIRONMENT != "production":
+        logger.info("Verification token generated for %s: %s", new_user.email, verification_token)
+    else:
+        logger.info("Verification token generated for user_id=%s", new_user.id)
     
     return new_user
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { cn } from './ProductCard';
 import { StatusBadge } from './StatusBadge';
 import { Trash2 } from 'lucide-react';

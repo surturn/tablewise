@@ -3,8 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchAnalyticsOverview } from '../../api/analytics';
 import { useAuthStore } from '../../store/authStore';
 import { StatCard } from '../../components/ui/StatCard';
-import { SkeletonCard } from '../../components/ui/Skeleton';
-import { PieChart, TrendingUp, DollarSign, Activity } from 'lucide-react';
+import { SkeletonCard, SkeletonTable } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
+import { PieChart, TrendingUp, DollarSign, Activity, Calendar } from 'lucide-react';
 
 const AnalyticsPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -24,12 +25,46 @@ const AnalyticsPage: React.FC = () => {
     );
   }
 
-  const overview = data || {
-    total_revenue_usd_cents: 0,
-    total_orders: 0,
-    active_customers: 0,
-    occupancy_rate: 0,
-  };
+  const isDataEmpty = !data || (data.total_orders === 0 && data.total_revenue_usd_cents === 0);
+
+  if (isDataEmpty) {
+    return (
+      <div className="space-y-6 relative min-h-[600px]">
+        <div className="flex items-center gap-2 mb-6">
+          <PieChart className="text-brand-orange" size={28} />
+          <h2 className="text-2xl font-bold text-brand-dark">Analytics Dashboard</h2>
+        </div>
+        
+        {/* Faint background skeletons to hint at structure */}
+        <div className="absolute inset-0 top-16 opacity-30 pointer-events-none z-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+          <SkeletonTable rows={4} />
+        </div>
+
+        {/* Empty State Overlay */}
+        <div className="absolute inset-0 top-16 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[2px]">
+          <EmptyState 
+            theme="light"
+            icon={<Calendar size={32} />}
+            title="Awaiting data for this period"
+            description="There are no recorded transactions or active guests for the selected date range. Data will populate here as soon as orders are placed."
+            action={
+              <button className="bg-white border border-stone-200 text-brand-dark font-medium px-6 py-2 rounded-lg shadow-sm hover:bg-stone-50 transition-colors">
+                Change Date Range
+              </button>
+            }
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const overview = data;
 
   return (
     <div className="space-y-6">

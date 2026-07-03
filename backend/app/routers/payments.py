@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, Header, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models.enums import PaymentEntityType, UserRole
@@ -8,7 +8,7 @@ from app.routers.deps import require_roles, get_current_user_or_customer
 from app.models.customer import Guest
 from typing import Union
 from app.schemas.payment import CashMarkPaidResponse, PaymentIntentRequest, PaymentIntentResponse
-from app.services import payment_service
+from app.services import mpesa_service, payment_service
 
 router = APIRouter()
 
@@ -37,14 +37,17 @@ async def create_payment_intent(
         if isinstance(current_account, Guest) and entity.guest_id != current_account.id:
             raise HTTPException(status_code=403, detail="Not authorized to pay for this booking")
 
-    return await payment_service.create_payment_intent_for_entity(db, request.entity_type, request.entity_id, request.customer_email, request.metadata)
+    return await payment_service.create_payment_intent_for_entity(db, request.entity_type, request.entity_id, request.phone_number, request.metadata)
 
 
 
-@router.post("/webhook", status_code=status.HTTP_200_OK)
-async def stripe_webhook(request: Request, stripe_signature: str = Header(..., alias="Stripe-Signature"), db: AsyncSession = Depends(get_db)):
-    payload = await request.body()
-    return await payment_service.handle_stripe_webhook(db, payload, stripe_signature, request.client.host if request.client else None)
+@router.post("/mpesa/callback", status_code=status.HTTP_200_OK)
+async def mpesa_callback(request: Request, db: AsyncSession = Depends(get_db)):
+    # Safaricom doesn't sign callbacks the way Stripe does; the callback URL's
+    # obscurity is the current trust boundary. IP allowlisting Safaricom's
+    # ranges is a follow-up hardening step, not yet implemented.
+    payload = await request.json()
+    return await mpesa_service.handle_mpesa_callback(db, payload)
 
 
 @router.post("/{entity_type}/{entity_id}/mark-paid-cash", response_model=CashMarkPaidResponse)

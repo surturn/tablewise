@@ -7,9 +7,12 @@ import { SkeletonCard } from '../../components/ui/Skeleton';
 import { AnimatedPage, springs } from '../../components/ui/MotionConfig';
 import { apiClient as client } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToastStore } from '../../store/toastStore';
+import { queueOrderWhenOffline } from '../../utils/offlineOrderQueue';
 
 const DrinkFlow: React.FC = () => {
   const { user } = useAuth();
+  const addToast = useToastStore((state) => state.addToast);
   
   // Local "Tab" State
   // We use local state since there is no backend endpoint to incrementally add items to an order.
@@ -28,23 +31,25 @@ const DrinkFlow: React.FC = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const outletsRes = await client.get('/api/v1/outlets');
+        const outletsRes = await client.get('/outlets');
         const defaultOutlet = outletsRes.data[0]?.id;
         setOutletId(defaultOutlet);
 
         if (defaultOutlet) {
           // Typically we'd filter for "Drinks" or "Bar" category if backend supported it natively by name.
           // For now, we fetch all items and simulate it.
-          const itemsRes = await client.get(`/api/v1/menu/items?outlet_id=${defaultOutlet}`);
+          const itemsRes = await client.get(`/menu/items?outlet_id=${defaultOutlet}`);
           setMenuItems(itemsRes.data);
         }
       } catch (err) {
         console.error("Failed to load menu", err);
+        addToast('Could not load the bar menu. Please check your connection and try again.', 'error');
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addToTab = (menuItem: any) => {
@@ -61,28 +66,36 @@ const DrinkFlow: React.FC = () => {
   const handleCloseTab = async () => {
     if (!outletId || tabItems.length === 0) return;
     setIsPlacing(true);
+    const payload = {
+      outlet_id: outletId,
+      guest_id: user?.id,
+      items: tabItems.map(i => ({
+        menu_item_id: i.item.id,
+        quantity: i.quantity,
+        unit_price: i.item.price_usd_cents / 100,
+        special_instructions: ''
+      })),
+      payment_method: 'cash', // TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx)
+      order_type: 'dine_in',
+      is_delivery: false,
+    };
     try {
-      const payload = {
-        outlet_id: outletId,
-        guest_id: user?.id,
-        items: tabItems.map(i => ({
-          menu_item_id: i.item.id,
-          quantity: i.quantity,
-          unit_price: i.item.price_usd_cents / 100,
-          special_instructions: ''
-        })),
-        payment_method: 'card', // Stubbed payment step
-        order_type: 'dine_in',
-        is_delivery: false,
-      };
-      
-      const res = await client.post('/api/v1/orders/', payload);
+      const res = await client.post('/orders/', payload);
       setPlacedOrder(res.data);
       setTabItems([]);
       setIsTabOpen(false);
       setIsCheckout(false);
     } catch (err) {
       console.error("Failed to close tab", err);
+      if (!navigator.onLine) {
+        await queueOrderWhenOffline(payload);
+        addToast('You are offline. Tab queued and will close automatically once reconnected.', 'info');
+        setTabItems([]);
+        setIsTabOpen(false);
+        setIsCheckout(false);
+      } else {
+        addToast('Failed to close your tab. Please try again.', 'error');
+      }
     } finally {
       setIsPlacing(false);
     }
@@ -156,14 +169,12 @@ const DrinkFlow: React.FC = () => {
               <span className="text-3xl font-black text-brand-dark">${total.toFixed(2)}</span>
             </div>
 
-            {/* Stubbed Payment Details */}
+            {/* TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx) */}
             <div className="mb-8">
               <p className="text-sm font-bold text-stone-700 mb-3">Payment Method</p>
               <div className="border border-brand-orange bg-amber-50/30 p-4 rounded-xl flex items-center gap-3">
-                <CreditCard className="text-brand-orange" />
                 <div>
-                  <p className="font-bold text-stone-900 text-sm">Card ending in 4242</p>
-                  <p className="text-xs text-stone-500">Expires 12/24</p>
+                  <p className="font-bold text-stone-900 text-sm">Pay with cash at the bar</p>
                 </div>
                 <div className="ml-auto w-5 h-5 rounded-full bg-brand-orange text-white flex items-center justify-center">
                   <CheckCircle2 size={12} />

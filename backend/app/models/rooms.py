@@ -46,7 +46,7 @@ class Booking(Base, BaseModelMixin):
     status: Mapped[BookingStatus] = mapped_column(SQLEnum(BookingStatus), default=BookingStatus.pending, index=True)
     total_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     payment_status: Mapped[BookingPaymentStatus] = mapped_column(SQLEnum(BookingPaymentStatus), default=BookingPaymentStatus.unpaid)
-    stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
+    mpesa_checkout_request_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     room: Mapped["Room"] = relationship("Room", back_populates="bookings")

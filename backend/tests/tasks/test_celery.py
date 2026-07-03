@@ -16,17 +16,15 @@ def test_mock_sms_task():
 
 
 def test_mock_ai_forecast_task(monkeypatch):
-    """Unit test: Verify the AI Forecast Celery task executes its mock branch."""
+    """Unit test: Verify the AI Forecast Celery task executes its mock branch without calling Anthropic."""
 
     # Temporarily override the real API key with the expected mock string
-    monkeypatch.setattr(settings, "OPENAI_API_KEY", "mock_key")
+    monkeypatch.setattr(settings, "ANTHROPIC_API_KEY", "mock_key")
 
-    # Now this assertion will pass perfectly
-    assert settings.OPENAI_API_KEY == "mock_key"
+    assert settings.ANTHROPIC_API_KEY == "mock_key"
 
-    result = generate_inventory_forecast("branch-uuid-123", "Sold 50 burgers yesterday.")
+    # Mock branch (ENVIRONMENT=="development" and ANTHROPIC_API_KEY=="mock_key") short-circuits
+    # before calling Anthropic and returns an empty forecast list.
+    result = generate_inventory_forecast("outlet-uuid-123", "Sold 50 burgers yesterday.")
 
-    assert result["currency"] == "USD"
-    assert result["horizon_days"] == 7
-    assert result["recommendations"][0]["confidence_score"] >= settings.AI_MIN_CONFIDENCE_SCORE
-    assert result["data_quality_notes"]
+    assert result == []

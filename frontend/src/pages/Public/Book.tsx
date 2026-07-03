@@ -3,10 +3,10 @@ import { m } from 'framer-motion';
 import { useRoomTypes } from '../../api/rooms';
 import { useCreateBooking } from '../../api/bookings';
 import { useToastStore } from '../../store/toastStore';
-import Navbar from '../../components/Layout/Navbar';
 import { SkeletonCard } from '../../components/ui/Skeleton';
+import { EmptyState } from '../../components/ui/EmptyState';
 import { Modal } from '../../components/ui/Modal';
-import { Users, Info } from 'lucide-react';
+import { Users, Info, BedDouble } from 'lucide-react';
 
 const Book: React.FC = () => {
   const { data: roomTypes = [], isLoading } = useRoomTypes();
@@ -42,8 +42,7 @@ const Book: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-brand-light">
-      <Navbar />
+    <div className="min-h-screen bg-stone-50">
       <main className="mx-auto max-w-5xl p-6 py-12">
         <div className="mb-12">
           <h1 className="text-4xl font-black text-brand-dark mb-4">Book your stay</h1>
@@ -64,7 +63,17 @@ const Book: React.FC = () => {
         <section className="grid gap-6 md:grid-cols-3">
           {isLoading && Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)}
           
-          {!isLoading && roomTypes.map((rt, i) => (
+          {!isLoading && roomTypes.length === 0 && (
+            <div className="md:col-span-3">
+              <EmptyState 
+                icon={<BedDouble size={32} />}
+                title="No Rooms Available"
+                description="We currently have no rooms available for the selected dates or the system is updating. Please try another date or check back later."
+              />
+            </div>
+          )}
+
+          {!isLoading && roomTypes.length > 0 && roomTypes.map((rt, i) => (
             <m.article 
               key={rt.id} 
               initial={{ opacity: 0, y: 20 }}
