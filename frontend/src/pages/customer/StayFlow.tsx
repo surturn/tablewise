@@ -146,7 +146,7 @@ const StayFlow: React.FC = () => {
                       name={room.name}
                       description={room.description}
                       capacity={room.capacity}
-                      basePriceUsdCents={room.base_price_usd_cents}
+                      basePriceKesCents={room.base_price_kes_cents}
                       availableCount={room.available_count}
                       amenities={room.amenities}
                       photos={room.photos}
@@ -173,7 +173,7 @@ const StayFlow: React.FC = () => {
               
               <div className="mb-8 pb-8 border-b border-stone-100">
                 <h2 className="text-2xl font-black text-stone-900 mb-2">Book {selectedRoom.name}</h2>
-                <p className="text-stone-500 font-medium">${(selectedRoom.base_price_usd_cents / 100).toFixed(2)} per night</p>
+                <p className="text-stone-500 font-medium">KSh {(selectedRoom.base_price_kes_cents / 100).toFixed(2)} per night</p>
               </div>
 
               <form onSubmit={handleBook} className="space-y-6">

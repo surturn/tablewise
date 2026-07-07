@@ -21,7 +21,7 @@ const Menu: React.FC = () => {
     addItem({
       menu_item_id: item.id,
       name: item.name,
-      price_usd_cents: item.price_usd_cents,
+      price_kes_cents: item.price_kes_cents,
       quantity: 1,
       outlet_id: selectedOutletId,
     });
@@ -80,7 +80,7 @@ const Menu: React.FC = () => {
 
                 <div className="mt-6 flex items-center justify-between">
                   <span className="text-xl font-black text-brand-orange">
-                    ${(item.price_usd_cents / 100).toFixed(2)}
+                    KSh {(item.price_kes_cents / 100).toFixed(2)}
                   </span>
                   <button
                     onClick={() => handleAddToCart(item)}

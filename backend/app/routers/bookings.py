@@ -63,6 +63,17 @@ async def get_booking(
 
 @router.put("/{booking_id}/status", response_model=BookingResponse)
 async def update_booking_status(booking_id: uuid.UUID, payload: BookingStatusUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.receptionist]))):
+    """
+    Updates the status of an existing room booking.
+    
+    Business Rules:
+    - Validates state progression (e.g., PENDING -> CONFIRMED -> CHECKED_IN -> CHECKED_OUT).
+    - CHECKED_IN: Requires the assigned room to be clean and available. Updates the room's status to OCCUPIED.
+    - CHECKED_OUT: Frees the room and automatically schedules a Celery housekeeping task.
+    - Errors:
+        - 404 Not Found if the booking ID is invalid.
+        - 400 Bad Request / 409 Conflict for invalid state transitions or unavailable rooms.
+    """
     return await booking_service.update_booking_status(db, booking_id, payload.status, current_user.id)
 
 
@@ -71,7 +82,7 @@ async def add_booking_extra(booking_id: uuid.UUID, extra: BookingExtraCreate, db
     from app.models.rooms import BookingExtra
     booking = await booking_service.get_booking(db, booking_id)
     db.add(BookingExtra(booking_id=booking_id, **extra.model_dump()))
-    booking.total_usd_cents += extra.price_usd_cents
+    booking.total_kes_cents += extra.price_kes_cents
     await db.commit()
     return await booking_service.get_booking(db, booking_id)
 
@@ -84,16 +95,8 @@ async def create_booking_payment_intent(
     current_account: Union[User, Guest] = Depends(get_current_user_or_customer)
 ):
     from app.models.enums import PaymentEntityType
-    from fastapi import HTTPException
-    
-    booking = await booking_service.get_booking(db, booking_id)
-    if not booking:
-        raise HTTPException(status_code=404, detail="Booking not found")
-        
-    if isinstance(current_account, Guest) and booking.guest_id != current_account.id:
-        raise HTTPException(status_code=403, detail="Not authorized to pay for this booking")
-        
-    return await payment_service.create_payment_intent_for_entity(db, PaymentEntityType.booking, booking_id, phone_number, {})
+
+    return await payment_service.create_payment_intent_for_entity(db, PaymentEntityType.booking, booking_id, phone_number, current_account)
 
 
 @router.get("/calendar", response_model=PaginatedResponse[BookingResponse])

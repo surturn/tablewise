@@ -7,7 +7,7 @@ export interface Guest {
   email: string | null;
   nationality?: string;
   loyalty_points: number;
-  total_spend_usd_cents: number;
+  total_spend_kes_cents: number;
 }
 
 export const fetchGuests = async (): Promise<Guest[]> => {

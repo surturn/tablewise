@@ -42,7 +42,7 @@ export function ProductCard({ name, price, image, description, onClick, classNam
         )}
         <div className="mt-auto pt-2 flex items-center justify-between">
           <span className="font-medium text-blue-600 dark:text-blue-400">
-            ${(price / 100).toFixed(2)}
+            KSh {(price / 100).toFixed(2)}
           </span>
           <button className="h-8 w-8 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
             +

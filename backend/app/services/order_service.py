@@ -58,32 +58,32 @@ async def create_order(db: AsyncSession, order_in: OrderCreate, cashier_id: Opti
         is_delivery=order_in.is_delivery,
         delivery_address=order_in.delivery_address,
         notes=order_in.notes,
-        total_usd_cents=0,
+        total_kes_cents=0,
     )
     db.add(db_order)
     await db.flush()
 
-    total_usd_cents = 0
+    total_kes_cents = 0
     for item_in in order_in.items:
         result = await db.execute(select(MenuItem).where(MenuItem.id == item_in.menu_item_id, MenuItem.outlet_id == outlet_id))
         menu_item = result.scalars().first()
         if not menu_item or not menu_item.is_available:
             raise HTTPException(status_code=400, detail=f"Menu item {item_in.menu_item_id} is invalid, unavailable, or not in this outlet")
-        subtotal = menu_item.price_usd_cents * item_in.quantity
-        total_usd_cents += subtotal
+        subtotal = menu_item.price_kes_cents * item_in.quantity
+        total_kes_cents += subtotal
         db.add(OrderItem(
             order_id=db_order.id,
             menu_item_id=menu_item.id,
             quantity=item_in.quantity,
-            unit_price_usd_cents=menu_item.price_usd_cents,
-            subtotal_usd_cents=subtotal,
+            unit_price_kes_cents=menu_item.price_kes_cents,
+            subtotal_kes_cents=subtotal,
             special_instructions=item_in.special_instructions,
         ))
 
-    db_order.total_usd_cents = total_usd_cents
+    db_order.total_kes_cents = total_kes_cents
     if order_in.payment_method == PaymentMethod.cash:
         db_order.status = OrderStatus.CREATED
-        db.add(Payment(entity_type=PaymentEntityType.order, entity_id=db_order.id, amount_usd_cents=total_usd_cents, method=PaymentMethod.cash, status=PaymentStatus.pending))
+        db.add(Payment(entity_type=PaymentEntityType.order, entity_id=db_order.id, amount_kes_cents=total_kes_cents, method=PaymentMethod.cash, status=PaymentStatus.pending))
     else:
         db_order.status = OrderStatus.PENDING_PAYMENT
     await db.commit()

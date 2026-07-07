@@ -16,7 +16,7 @@ class RoomType(Base, BaseModelMixin):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(String(500), default="")
     capacity: Mapped[int] = mapped_column(Integer, nullable=False)
-    base_price_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    base_price_kes_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     amenities: Mapped[List[str]] = mapped_column(JSON, default=list)
     photos: Mapped[List[str]] = mapped_column(JSON, default=list)
 
@@ -44,7 +44,7 @@ class Booking(Base, BaseModelMixin):
     check_in: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     check_out: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     status: Mapped[BookingStatus] = mapped_column(SQLEnum(BookingStatus), default=BookingStatus.pending, index=True)
-    total_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_kes_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     payment_status: Mapped[BookingPaymentStatus] = mapped_column(SQLEnum(BookingPaymentStatus), default=BookingPaymentStatus.unpaid)
     mpesa_checkout_request_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, index=True)
     notes: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
@@ -59,6 +59,6 @@ class BookingExtra(Base, BaseModelMixin):
 
     booking_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("bookings.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    price_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    price_kes_cents: Mapped[int] = mapped_column(Integer, nullable=False)
 
     booking: Mapped["Booking"] = relationship("Booking", back_populates="extras")

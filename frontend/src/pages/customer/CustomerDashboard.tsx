@@ -104,7 +104,7 @@ const CustomerDashboard: React.FC = () => {
                               </div>
                               <div>
                                 <p className="font-bold text-sm text-stone-900">{order.order_type === 'dine_in' ? 'Bar Tab' : 'Food Order'}</p>
-                                <p className="text-xs text-stone-500">${(order.total_usd_cents / 100).toFixed(2)}</p>
+                                <p className="text-xs text-stone-500">KSh {(order.total_kes_cents / 100).toFixed(2)}</p>
                               </div>
                             </div>
                             <StatusBadge status={order.status} />

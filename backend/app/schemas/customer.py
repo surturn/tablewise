@@ -18,7 +18,7 @@ class GuestCreate(GuestBase):
 class GuestResponse(GuestBase):
     id: uuid.UUID
     loyalty_points: int
-    total_spend_usd_cents: int
+    total_spend_kes_cents: int
     is_active: bool
     model_config = ConfigDict(from_attributes=True)
 

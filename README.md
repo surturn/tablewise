@@ -53,6 +53,18 @@ uvicorn app.main:app --reload --port 8000
 
 API docs are served at `http://localhost:8000/docs` once running.
 
+### Database Seeding
+
+To populate a fresh database with initial dummy data (e.g., users, outlets, rooms, and menus):
+
+1. **Important:** Ensure your Postgres and Redis Docker containers are running before executing the script.
+2. Run the database seeding command:
+
+```bash
+cd backend
+python -m app.seed
+```
+
 ### Running the backend test suite
 
 Tests need a real Postgres and Redis reachable at whatever `DATABASE_URL`/`REDIS_URL` resolve to

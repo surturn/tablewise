@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     # ----------------------
     # AI / EMAIL / SMS
     # ----------------------
-    ANTHROPIC_API_KEY: str = Field(repr=False)
+    OPENAI_API_KEY: str = Field(repr=False)
 
     SENDGRID_API_KEY: str = Field(repr=False)
 

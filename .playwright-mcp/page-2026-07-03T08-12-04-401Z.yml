@@ -1,0 +1,6 @@
+- generic [ref=f12e4]:
+  - heading "TableWise isn't configured correctly" [level=1] [ref=f12e5]
+  - paragraph [ref=f12e6]:
+    - text: This deployment is missing its backend URL (
+    - code [ref=f12e7]: VITE_API_BASE_URL
+    - text: ). If you're the site owner, set it in your hosting provider's environment variables and redeploy.

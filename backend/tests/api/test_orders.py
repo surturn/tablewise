@@ -29,7 +29,7 @@ async def test_order_creation_and_state_machine(async_client: AsyncClient, test_
 
     item_resp = await async_client.post(
         f"{settings.API_V1_STR}/menu/items",
-        json={"name": "Burger", "price_usd_cents": 50000, "category_id": cat_id, "outlet_id": outlet_id},
+        json={"name": "Burger", "price_kes_cents": 50000, "category_id": cat_id, "outlet_id": outlet_id},
         headers=staff_headers,
     )
     assert item_resp.status_code == 201
@@ -59,7 +59,7 @@ async def test_order_creation_and_state_machine(async_client: AsyncClient, test_
 
     order_id = order_data["id"]
     assert order_data["status"] == OrderStatus.CREATED.value
-    assert order_data["total_usd_cents"] == 100000  # Backend calculated it correctly
+    assert order_data["total_kes_cents"] == 100000  # Backend calculated it correctly
 
     # 4. Test Invalid State Transition (CREATED -> DELIVERED should fail) as staff
     invalid_patch = await async_client.patch(

@@ -6,7 +6,7 @@ export interface MenuItem {
   outlet_id: string;
   name: string;
   description: string;
-  price_usd_cents: number;
+  price_kes_cents: number;
   image_url: string | null;
   category_id: string;
 }

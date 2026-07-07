@@ -1,7 +1,20 @@
 # Architecture notes
 
-Two things in this codebase aren't obvious from reading a single file in isolation. This doc
+Three things in this codebase aren't obvious from reading a single file in isolation. This doc
 exists so the next person (or agent) doesn't have to reconstruct them from `git log`.
+
+## 0. KES is the platform's authoritative currency
+
+All money fields in the schema (`*_kes_cents` on `MenuItem`, `Order`, `OrderItem`, `RoomType`,
+`Booking`, `BookingExtra`, `Payment`, `Guest.total_spend_kes_cents`) store **KES cents**, and
+`Property.currency` defaults to `"KES"`. This was corrected 2026-07-04 — the fields were
+previously named and stored as `*_usd_cents` while `mpesa_service` sent that same integer to
+Safaricom's Daraja API as whole KES with no conversion, undercharging every M-Pesa payment by
+~100x. See `docs/payment-currency-and-booking-prd.md` for the full incident and fix (backend
+column rename + magnitude migration, frontend display rename from `$` to `KSh`, `Property.currency`
+and `ai_validation.InventoryForecast.currency` corrected to `"KES"`). **Don't reintroduce a
+`_usd_cents` field or a literal `$`/`"USD"` anywhere in this codebase** — grep for `usd_cents` or
+`USD` before adding a new money field or price display.
 
 ## 1. The outlet/branch and guest/customer dual vocabulary
 
@@ -36,12 +49,22 @@ in your head.
 
 **One `Payment` model serves two different domain entities.** A payment is either for an `Order`
 (food/drink) or a `Booking` (room stay) — `Payment.entity_type` (`PaymentEntityType.order` /
-`.booking`) plus `Payment.entity_id` (a bare UUID, no FK) point at whichever one it is. This
-keeps `payment_service.py` entity-agnostic: `create_payment_intent_for_entity`,
-`handle_payment_success`, and `handle_payment_failure` all branch on `entity_type` internally
-rather than needing separate order-payment and booking-payment code paths. If you add a third
-payable thing (e.g. a spa booking), it plugs into this same enum + the two `if/else` branches in
-`payment_service.py` — no new payment infrastructure needed.
+`.booking`) plus `Payment.entity_id` (a bare UUID, no FK) point at whichever one it is.
+
+**The `entity_type` branch is currently duplicated across five call sites, not two** —
+`routers/payments.py::create_payment_intent` (entity fetch + ownership check), and four functions
+in `payment_service.py`: `_get_entity_amount`, `handle_payment_success`, `handle_payment_failure`,
+and `mark_paid_cash`. Nothing enforces that a new branch is added everywhere at once — an earlier
+version of `handle_payment_failure` only updated `Order`, silently leaving `Booking` unchanged on
+a failed M-Pesa payment, until that asymmetry was caught and fixed (see
+`docs/payment-currency-and-booking-prd.md` FR-7/FR-8, and the regression test in
+`tests/api/test_payments.py::test_handle_payment_success_and_failure_are_symmetric_across_entity_types`).
+**If you add a third payable thing** (e.g. a spa booking), don't assume it "just plugs into the
+enum" — audit all five call sites above, or consider replacing the branching with a small
+per-entity-type strategy/registry so the type system (or at least one shared test) catches a
+missing branch instead of relying on someone remembering all five spots. This repo has no
+mypy/pyright CI gate today, so a static-typing argument for that refactor doesn't hold on its own
+— the regression test above is the actual backstop currently in place.
 
 **The M-Pesa flow** (`backend/app/services/mpesa_service.py`):
 

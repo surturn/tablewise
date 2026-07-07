@@ -1,0 +1,20 @@
+- generic [ref=f2e2]:
+  - generic [ref=f2e19]:
+    - generic [ref=f2e20]:
+      - heading "TableWise" [level=2] [ref=f2e21]
+      - paragraph [ref=f2e22]: Sign in to your account
+    - generic [ref=f2e23]:
+      - generic [ref=f2e24]:
+        - generic [ref=f2e25]:
+          - generic [ref=f2e26]: Email address
+          - textbox "you@example.com" [ref=f2e27]
+        - generic [ref=f2e28]:
+          - generic [ref=f2e29]: Password
+          - textbox "••••••••" [ref=f2e30]
+      - button "Sign In" [ref=f2e32] [cursor=pointer]
+      - button "Don't have an account? Sign Up" [ref=f2e34] [cursor=pointer]
+  - generic [ref=f2e35]:
+    - img [ref=f2e37]
+    - paragraph [ref=f2e40]: Welcome back, Smoke Owner!
+    - button [ref=f2e41] [cursor=pointer]:
+      - img [ref=f2e42]

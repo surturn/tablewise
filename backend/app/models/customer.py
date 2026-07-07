@@ -16,7 +16,7 @@ class Guest(Base, BaseModelMixin):
     nationality: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
     id_document_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     loyalty_points: Mapped[int] = mapped_column(Integer, default=0)
-    total_spend_usd_cents: Mapped[int] = mapped_column(Integer, default=0)
+    total_spend_kes_cents: Mapped[int] = mapped_column(Integer, default=0)
     hashed_password: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 

@@ -56,7 +56,7 @@ const CustomersManagement: React.FC = () => {
                       <div className="text-xs text-stone-400">{guest.email}</div>
                     </td>
                     <td className="px-6 py-4 text-center">{guest.nationality || '-'}</td>
-                    <td className="px-6 py-4 text-right font-medium">${(guest.total_spend_usd_cents / 100).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right font-medium">KSh {(guest.total_spend_kes_cents / 100).toFixed(2)}</td>
                     <td className="px-6 py-4 text-right">
                       <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-1 rounded-full font-bold border border-amber-200">
                         <Award size={14} /> {guest.loyalty_points}

@@ -99,7 +99,7 @@ const Book: React.FC = () => {
                 
                 <div className="flex justify-between items-end mt-auto pt-4 border-t border-stone-100">
                   <div>
-                    <span className="text-2xl font-black text-brand-dark">${(rt.base_price_usd_cents / 100).toFixed(2)}</span>
+                    <span className="text-2xl font-black text-brand-dark">KSh {(rt.base_price_kes_cents / 100).toFixed(2)}</span>
                     <span className="text-stone-500 text-sm"> / night</span>
                   </div>
                   <button 

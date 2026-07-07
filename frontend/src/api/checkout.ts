@@ -60,7 +60,7 @@ export async function processCheckout(
 export interface PaymentIntent {
   checkout_request_id: string;
   merchant_request_id: string;
-  amount_usd_cents: number;
+  amount_kes_cents: number;
 }
 
 export async function initiatePayment(

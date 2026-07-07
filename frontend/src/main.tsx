@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
+import ConfigErrorScreen from './ConfigErrorScreen.tsx';
+import { isApiMisconfigured } from './api/client';
 import './index.css';
 
 if ('serviceWorker' in navigator) {
@@ -11,6 +13,6 @@ if ('serviceWorker' in navigator) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    {isApiMisconfigured ? <ConfigErrorScreen /> : <App />}
   </React.StrictMode>,
 );

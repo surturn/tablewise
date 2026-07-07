@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/room-types/", response_model=list[RoomTypeResponse])
 async def list_room_types(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(RoomType).order_by(RoomType.base_price_usd_cents))
+    result = await db.execute(select(RoomType).order_by(RoomType.base_price_kes_cents))
     room_types = list(result.scalars().all())
     responses = []
     for room_type in room_types:

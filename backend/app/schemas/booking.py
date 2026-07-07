@@ -15,7 +15,7 @@ class GuestBookingCreate(BaseModel):
 
 class BookingExtraCreate(BaseModel):
     name: str
-    price_usd_cents: int = Field(ge=0)
+    price_kes_cents: int = Field(ge=0)
 
 
 class BookingCreate(BaseModel):
@@ -39,7 +39,7 @@ class BookingResponse(BaseModel):
     check_in: date
     check_out: date
     status: BookingStatus
-    total_usd_cents: int
+    total_kes_cents: int
     payment_status: BookingPaymentStatus
     mpesa_checkout_request_id: Optional[str] = None
     notes: Optional[str] = None
@@ -56,7 +56,7 @@ class RoomTypeCreate(BaseModel):
     name: str
     description: str = ""
     capacity: int = Field(gt=0)
-    base_price_usd_cents: int = Field(gt=0)
+    base_price_kes_cents: int = Field(gt=0)
     amenities: list[str] = []
     photos: list[str] = []
 

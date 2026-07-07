@@ -1,0 +1,26 @@
+- generic [ref=f1e2]:
+  - generic [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - heading "TableWise" [level=2] [ref=f1e6]
+      - paragraph [ref=f1e7]: Create a new account
+    - generic [ref=f1e8]:
+      - generic [ref=f1e9]:
+        - generic [ref=f1e20]:
+          - generic [ref=f1e21]: Full Name
+          - textbox "John Doe" [ref=f1e22]: Verify Guest
+        - generic [ref=f1e23]:
+          - generic [ref=f1e24]: Phone Number
+          - textbox "+211..." [ref=f1e25]: "0711999888"
+        - generic [ref=f1e10]:
+          - generic [ref=f1e11]: Email address
+          - textbox "you@example.com" [ref=f1e12]: verify-guest@example.com
+        - generic [ref=f1e13]:
+          - generic [ref=f1e14]: Password
+          - textbox "••••••••" [ref=f1e15]: TestPass123!
+      - button "Create Account" [ref=f1e26] [cursor=pointer]
+      - button "Already have an account? Sign In" [ref=f1e27] [cursor=pointer]
+  - generic [ref=f1e28]:
+    - img [ref=f1e30]
+    - paragraph [ref=f1e32]: Registration failed
+    - button [ref=f1e33] [cursor=pointer]:
+      - img [ref=f1e34]

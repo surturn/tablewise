@@ -13,7 +13,7 @@ class Payment(Base, BaseModelMixin):
 
     entity_type: Mapped[PaymentEntityType] = mapped_column(SQLEnum(PaymentEntityType), nullable=False, index=True)
     entity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
-    amount_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    amount_kes_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     method: Mapped[PaymentMethod] = mapped_column(SQLEnum(PaymentMethod), nullable=False)
     status: Mapped[PaymentStatus] = mapped_column(SQLEnum(PaymentStatus), default=PaymentStatus.pending, index=True)
     mpesa_checkout_request_id: Mapped[Optional[str]] = mapped_column(String(255), unique=True, index=True, nullable=True)
@@ -28,8 +28,8 @@ class Payment(Base, BaseModelMixin):
 
     @property
     def amount(self) -> float:
-        return self.amount_usd_cents / 100
+        return self.amount_kes_cents / 100
 
     @amount.setter
     def amount(self, value: float) -> None:
-        self.amount_usd_cents = int(round(float(value) * 100))
+        self.amount_kes_cents = int(round(float(value) * 100))

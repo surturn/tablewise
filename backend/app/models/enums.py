@@ -44,6 +44,7 @@ class BookingPaymentStatus(str, enum.Enum):
     unpaid = "unpaid"
     partial = "partial"
     paid = "paid"
+    failed = "failed"
     refunded = "refunded"
 
 
@@ -73,11 +74,6 @@ class PaymentStatus(str, enum.Enum):
     success = "success"
     failed = "failed"
     reversed = "reversed"
-
-    PENDING = "pending"
-    SUCCESS = "success"
-    FAILED = "failed"
-    REVERSED = "reversed"
 
 
 class PaymentMethod(str, enum.Enum):

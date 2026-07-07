@@ -8,7 +8,7 @@ interface RoomTypeCardProps {
   name: string;
   description: string;
   capacity: number;
-  basePriceUsdCents: number;
+  basePriceKesCents: number;
   availableCount: number;
   amenities: string[];
   photos: string[];
@@ -26,9 +26,9 @@ const getAmenityIcon = (amenity: string) => {
 };
 
 const RoomTypeCard: React.FC<RoomTypeCardProps> = ({ 
-  name, description, capacity, basePriceUsdCents, availableCount, amenities, photos, onSelect, delay = 0 
+  name, description, capacity, basePriceKesCents, availableCount, amenities, photos, onSelect, delay = 0 
 }) => {
-  const price = (basePriceUsdCents / 100).toFixed(2);
+  const price = (basePriceKesCents / 100).toFixed(2);
   const isAvailable = availableCount > 0;
 
   return (
@@ -85,7 +85,7 @@ const RoomTypeCard: React.FC<RoomTypeCardProps> = ({
         <div className="flex items-center justify-between pt-6 border-t border-stone-100">
           <div>
             <span className="text-xs font-bold text-stone-400 uppercase tracking-wider block mb-1">Per Night</span>
-            <span className="font-black text-3xl text-brand-dark">${price}</span>
+            <span className="font-black text-3xl text-brand-dark">KSh {price}</span>
           </div>
           <button
             onClick={onSelect}

@@ -1,0 +1,58 @@
+- generic [ref=f7e3]:
+  - generic [ref=f7e4]:
+    - generic [ref=f7e6]: TableWise
+    - generic [ref=f7e7]:
+      - link "Overview" [ref=f7e8] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=f7e9]
+        - text: Overview
+      - link "Orders (POS)" [ref=f7e14] [cursor=pointer]:
+        - /url: /dashboard/orders
+        - img [ref=f7e15]
+        - text: Orders (POS)
+      - link "Rooms" [ref=f7e18] [cursor=pointer]:
+        - /url: /dashboard/rooms
+        - img [ref=f7e19]
+        - text: Rooms
+      - link "Bookings" [ref=f7e22] [cursor=pointer]:
+        - /url: /dashboard/reservations
+        - img [ref=f7e23]
+        - text: Bookings
+      - link "Housekeeping" [ref=f7e26] [cursor=pointer]:
+        - /url: /dashboard/housekeeping
+        - img [ref=f7e27]
+        - text: Housekeeping
+      - link "Inventory" [ref=f7e32] [cursor=pointer]:
+        - /url: /dashboard/inventory
+        - img [ref=f7e34]
+        - text: Inventory
+      - link "Guests" [ref=f7e38] [cursor=pointer]:
+        - /url: /dashboard/customers
+        - img [ref=f7e39]
+        - text: Guests
+      - link "Analytics" [ref=f7e44] [cursor=pointer]:
+        - /url: /dashboard/analytics
+        - img [ref=f7e45]
+        - text: Analytics
+    - generic [ref=f7e48]:
+      - generic [ref=f7e50]:
+        - paragraph [ref=f7e51]: Smoke Owner
+        - paragraph [ref=f7e52]: owner
+      - button "Logout" [ref=f7e53] [cursor=pointer]:
+        - img [ref=f7e54]
+        - text: Logout
+  - generic [ref=f7e57]:
+    - banner [ref=f7e58]:
+      - heading "Inventory" [level=1] [ref=f7e60]
+      - generic [ref=f7e62]: S
+    - main [ref=f7e63]:
+      - generic [ref=f7e66]:
+        - heading "Inventory Management" [level=2] [ref=f7e67]:
+          - img [ref=f7e68]
+          - text: Inventory Management
+        - generic [ref=f7e72]:
+          - combobox [ref=f7e73]:
+            - option "All Outlets" [selected]
+          - generic [ref=f7e74]:
+            - img [ref=f7e75]
+            - textbox "Search items or SKU..." [ref=f7e78]

@@ -14,7 +14,7 @@ from app.utils.security import get_password_hash
 
 async def main() -> None:
     async with AsyncSessionLocal() as db:
-        property_ = Property(name="Grand Hotel Juba", address="Juba, South Sudan", timezone="Africa/Juba", currency="USD", settings={"country_code": "+211"})
+        property_ = Property(name="Grand Hotel Juba", address="Juba, South Sudan", timezone="Africa/Juba", currency="KES", settings={"country_code": "+211"})
         db.add(property_)
         await db.flush()
 
@@ -23,9 +23,9 @@ async def main() -> None:
         db.add_all([restaurant, bar])
 
         room_types = [
-            RoomType(property_id=property_.id, name="Standard", description="Comfortable room with Wi-Fi and AC", capacity=2, base_price_usd_cents=8500, amenities=["wifi", "ac"], photos=[]),
-            RoomType(property_id=property_.id, name="Deluxe", description="Larger room with minibar", capacity=2, base_price_usd_cents=12500, amenities=["wifi", "ac", "minibar"], photos=[]),
-            RoomType(property_id=property_.id, name="Suite", description="Premium suite for extended stays", capacity=4, base_price_usd_cents=22000, amenities=["wifi", "ac", "minibar", "lounge"], photos=[]),
+            RoomType(property_id=property_.id, name="Standard", description="Comfortable room with Wi-Fi and AC", capacity=2, base_price_kes_cents=850000, amenities=["wifi", "ac"], photos=[]),
+            RoomType(property_id=property_.id, name="Deluxe", description="Larger room with minibar", capacity=2, base_price_kes_cents=1250000, amenities=["wifi", "ac", "minibar"], photos=[]),
+            RoomType(property_id=property_.id, name="Suite", description="Premium suite for extended stays", capacity=4, base_price_kes_cents=2200000, amenities=["wifi", "ac", "minibar", "lounge"], photos=[]),
         ]
         db.add_all(room_types)
         await db.flush()

@@ -127,7 +127,7 @@ const CartDrawer: React.FC = () => {
                   <div key={item.menu_item_id} className="flex justify-between items-center bg-white p-4 rounded-xl shadow-subtle border border-stone-100">
                     <div>
                       <h4 className="font-bold text-brand-dark">{item.name}</h4>
-                      <p className="text-brand-orange text-sm font-black">${(item.price_usd_cents / 100).toFixed(2)}</p>
+                      <p className="text-brand-orange text-sm font-black">KSh {(item.price_kes_cents / 100).toFixed(2)}</p>
                     </div>
                     <div className="flex items-center gap-3 bg-stone-50 border border-stone-100 rounded-lg p-1">
                       <button onClick={() => updateQuantity(item.menu_item_id, item.quantity - 1)} className="p-1 hover:bg-white rounded text-stone-500 hover:text-brand-dark transition-colors shadow-sm">
@@ -147,7 +147,7 @@ const CartDrawer: React.FC = () => {
               <div className="border-t border-stone-100 p-6 bg-stone-50 shrink-0 space-y-4">
                 <div className="flex justify-between text-lg font-bold mb-2">
                   <span className="text-brand-dark">Total</span>
-                  <span className="text-brand-orange">${(getTotalCents() / 100).toFixed(2)}</span>
+                  <span className="text-brand-orange">KSh {(getTotalCents() / 100).toFixed(2)}</span>
                 </div>
 
                 <div className="space-y-3">

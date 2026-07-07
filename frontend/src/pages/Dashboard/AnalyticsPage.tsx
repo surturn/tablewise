@@ -25,7 +25,7 @@ const AnalyticsPage: React.FC = () => {
     );
   }
 
-  const isDataEmpty = !data || (data.total_orders === 0 && data.total_revenue_usd_cents === 0);
+  const isDataEmpty = !data || (data.total_orders === 0 && data.total_revenue_kes_cents === 0);
 
   if (isDataEmpty) {
     return (
@@ -76,7 +76,7 @@ const AnalyticsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Revenue"
-          value={`$${(overview.total_revenue_usd_cents / 100).toFixed(2)}`}
+          value={`KSh ${(overview.total_revenue_kes_cents / 100).toFixed(2)}`}
           icon={<DollarSign size={24} />}
         />
         <StatCard

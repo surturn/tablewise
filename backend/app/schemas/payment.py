@@ -14,7 +14,7 @@ class PaymentIntentRequest(BaseModel):
 class PaymentIntentResponse(BaseModel):
     checkout_request_id: str
     merchant_request_id: str
-    amount_usd_cents: int
+    amount_kes_cents: int
 
 
 class CashMarkPaidResponse(BaseModel):
@@ -29,7 +29,7 @@ class PaymentResponse(BaseModel):
     id: uuid.UUID
     entity_type: PaymentEntityType
     entity_id: uuid.UUID
-    amount_usd_cents: int
+    amount_kes_cents: int
     method: PaymentMethod
     status: PaymentStatus
     mpesa_checkout_request_id: Optional[str] = None

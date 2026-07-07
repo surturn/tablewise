@@ -6,7 +6,7 @@ export type OrderType = 'dine_in' | 'takeaway' | 'room_service';
 export interface POSCartItem {
   menu_item_id: string;
   name: string;
-  price_usd_cents: number;
+  price_kes_cents: number;
   quantity: number;
   special_instructions?: string;
   discount_cents?: number;
@@ -115,14 +115,14 @@ export const usePOSCartStore = create<POSCartState>()(
       getSubtotalCents: () => {
         return get().items.reduce((total, item) => {
           if (item.voided) return total;
-          return total + (item.price_usd_cents * item.quantity);
+          return total + (item.price_kes_cents * item.quantity);
         }, 0);
       },
 
       getTotalCents: () => {
         return get().items.reduce((total, item) => {
           if (item.voided) return total;
-          const itemTotal = (item.price_usd_cents * item.quantity) - (item.discount_cents || 0);
+          const itemTotal = (item.price_kes_cents * item.quantity) - (item.discount_cents || 0);
           return total + Math.max(0, itemTotal);
         }, 0);
       },

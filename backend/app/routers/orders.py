@@ -68,6 +68,18 @@ async def get_order(
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
 async def update_order_status(order_id: uuid.UUID, status_update: OrderStatusUpdate, db: AsyncSession = Depends(get_db), current_user: User = Depends(require_roles([UserRole.owner, UserRole.hotel_manager, UserRole.restaurant_manager, UserRole.receptionist, UserRole.chef, UserRole.bartender, UserRole.waiter, UserRole.rider]))):
+    """
+    Updates the status of an existing order.
+    
+    Business Rules:
+    - Validates linear state transitions (e.g., PENDING -> PREPARING -> READY -> DELIVERED).
+    - Authorization: Specific statuses may require specific roles (e.g., chefs mark as PREPARING/READY).
+    - Side Effects: Transitioning to DELIVERED triggers inventory deduction background tasks.
+    - Errors: 
+        - 404 Not Found if the order ID is invalid.
+        - 400 Bad Request or 409 Conflict if the requested state transition is out of sequence.
+        - 403 Forbidden if the staff member lacks outlet access.
+    """
     return await order_service.update_order_status(db, order_id, status_update)
 
 

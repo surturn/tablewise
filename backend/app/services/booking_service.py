@@ -34,7 +34,7 @@ async def create_booking(db: AsyncSession, room_type_id: uuid.UUID, guest: dict,
         raise HTTPException(status_code=409, detail="No rooms available for the requested date range")
     room_type = await db.get(RoomType, room_type_id)
     nights = (check_out - check_in).days
-    total = room_type.base_price_usd_cents * nights + sum(int(extra["price_usd_cents"]) for extra in extras)
+    total = room_type.base_price_kes_cents * nights + sum(int(extra["price_kes_cents"]) for extra in extras)
 
     result = await db.execute(select(Guest).where(Guest.email == guest.get("email")) if guest.get("email") else select(Guest).where(Guest.phone_number == guest["phone_number"]))
     db_guest = result.scalars().first()
@@ -43,11 +43,11 @@ async def create_booking(db: AsyncSession, room_type_id: uuid.UUID, guest: dict,
         db.add(db_guest)
         await db.flush()
 
-    booking = Booking(room_id=rooms[0].id, guest_id=db_guest.id, check_in=check_in, check_out=check_out, status=BookingStatus.pending, payment_status=BookingPaymentStatus.unpaid, total_usd_cents=total, notes=notes)
+    booking = Booking(room_id=rooms[0].id, guest_id=db_guest.id, check_in=check_in, check_out=check_out, status=BookingStatus.pending, payment_status=BookingPaymentStatus.unpaid, total_kes_cents=total, notes=notes)
     db.add(booking)
     await db.flush()
     for extra in extras:
-        db.add(BookingExtra(booking_id=booking.id, name=extra["name"], price_usd_cents=int(extra["price_usd_cents"])))
+        db.add(BookingExtra(booking_id=booking.id, name=extra["name"], price_kes_cents=int(extra["price_kes_cents"])))
     await db.commit()
     return await get_booking(db, booking.id)
 

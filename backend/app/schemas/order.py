@@ -44,8 +44,8 @@ class OrderItemResponse(BaseModel):
     id: uuid.UUID
     menu_item_id: uuid.UUID
     quantity: int
-    unit_price_usd_cents: int
-    subtotal_usd_cents: int
+    unit_price_kes_cents: int
+    subtotal_kes_cents: int
     special_instructions: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
@@ -56,7 +56,7 @@ class OrderResponse(BaseModel):
     guest_id: uuid.UUID
     cashier_id: Optional[uuid.UUID] = None
     status: OrderStatus
-    total_usd_cents: int
+    total_kes_cents: int
     payment_client_secret: Optional[str] = None
     order_type: OrderType
     table_number: Optional[str] = None
