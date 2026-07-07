@@ -1,0 +1,7 @@
+[    1371ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:4173/login:0
+[  113169ms] [ERROR] Auth failed: AxiosError: Network Error
+    at w.onerror (http://localhost:4173/assets/index-R2ElYIgM.js:338:6422)
+    at qr.request (http://localhost:4173/assets/index-R2ElYIgM.js:340:2085)
+    at async Kb (http://localhost:4173/assets/index-R2ElYIgM.js:352:39006)
+    at async x (http://localhost:4173/assets/index-R2ElYIgM.js:352:40073) @ http://localhost:4173/assets/index-R2ElYIgM.js:351
+[  113173ms] [ERROR] Failed to load resource: net::ERR_FAILED @ http://localhost:8000/api/v1/auth/customer/register:0

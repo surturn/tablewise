@@ -15,7 +15,7 @@ class Order(Base, BaseModelMixin):
     guest_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("guests.id", ondelete="RESTRICT"), index=True)
     cashier_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     status: Mapped[OrderStatus] = mapped_column(SQLEnum(OrderStatus), default=OrderStatus.CREATED, index=True)
-    total_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_kes_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     order_type: Mapped[OrderType] = mapped_column(SQLEnum(OrderType), default=OrderType.takeaway, index=True)
     table_number: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
     room_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), ForeignKey("rooms.id", ondelete="SET NULL"), nullable=True, index=True)
@@ -48,8 +48,8 @@ class Order(Base, BaseModelMixin):
 
     @property
     def total_amount(self) -> float:
-        return self.total_usd_cents / 100
+        return self.total_kes_cents / 100
 
     @total_amount.setter
     def total_amount(self, value: float) -> None:
-        self.total_usd_cents = int(round(float(value) * 100))
+        self.total_kes_cents = int(round(float(value) * 100))

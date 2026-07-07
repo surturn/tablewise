@@ -6,8 +6,8 @@ export interface OrderItem {
   id: string;
   menu_item_id: string;
   quantity: number;
-  unit_price_usd_cents: number;
-  subtotal_usd_cents: number;
+  unit_price_kes_cents: number;
+  subtotal_kes_cents: number;
   special_instructions?: string;
 }
 
@@ -16,7 +16,7 @@ export interface Order {
   outlet_id: string;
   guest_id: string;
   status: string;
-  total_usd_cents: number;
+  total_kes_cents: number;
   order_type: 'dine_in' | 'delivery' | 'takeaway' | 'room_service';
   table_number?: string;
   room_id?: string;

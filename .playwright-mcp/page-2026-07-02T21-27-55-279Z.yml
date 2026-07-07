@@ -1,0 +1,25 @@
+- generic [ref=f8e3]:
+  - navigation [ref=f8e4]:
+    - generic [ref=f8e6]:
+      - link "TableWise" [ref=f8e8] [cursor=pointer]:
+        - /url: /customer/dashboard
+        - heading "TableWise" [level=1] [ref=f8e9]
+      - generic [ref=f8e10]:
+        - link "Dashboard" [ref=f8e11] [cursor=pointer]:
+          - /url: /customer/dashboard
+        - link "Dine" [ref=f8e12] [cursor=pointer]:
+          - /url: /customer/dine
+        - link "Stay" [ref=f8e13] [cursor=pointer]:
+          - /url: /customer/stay
+        - link "Drink" [ref=f8e14] [cursor=pointer]:
+          - /url: /customer/drink
+      - generic [ref=f8e15]:
+        - button "2" [ref=f8e16] [cursor=pointer]:
+          - img [ref=f8e17]
+          - generic [ref=f8e21]: "2"
+        - button "V" [ref=f8e23] [cursor=pointer]:
+          - generic [ref=f8e24]: V
+  - main [ref=f8e25]:
+    - generic [ref=f8e27]:
+      - heading "Find your stay" [level=1] [ref=f8e28]
+      - paragraph [ref=f8e29]: Experience comfort and luxury tailored to your preferences.

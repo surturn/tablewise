@@ -7,7 +7,7 @@ export interface RoomType {
   name: string;
   description: string;
   capacity: number;
-  base_price_usd_cents: number;
+  base_price_kes_cents: number;
   amenities: string[];
   photos: string[];
 }

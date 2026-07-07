@@ -21,7 +21,7 @@ class MenuCategoryResponse(MenuCategoryBase):
 class MenuItemBase(BaseModel):
     name: str
     description: Optional[str] = None
-    price_usd_cents: int = Field(gt=0, description="USD price in cents")
+    price_kes_cents: int = Field(gt=0, description="KES price in cents")
     image_url: Optional[str] = None
     is_available: bool = True
     category_id: uuid.UUID

@@ -14,7 +14,7 @@ class MenuItem(Base, BaseModelMixin):
     category_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("menu_categories.id", ondelete="RESTRICT"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), index=True, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    price_usd_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    price_kes_cents: Mapped[int] = mapped_column(Integer, nullable=False)
     image_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_available: Mapped[bool] = mapped_column(Boolean, default=True, index=True)
 
@@ -23,11 +23,11 @@ class MenuItem(Base, BaseModelMixin):
 
     @property
     def price(self) -> float:
-        return self.price_usd_cents / 100
+        return self.price_kes_cents / 100
 
     @price.setter
     def price(self, value: float) -> None:
-        self.price_usd_cents = int(round(float(value) * 100))
+        self.price_kes_cents = int(round(float(value) * 100))
 
     @property
     def is_active(self) -> bool:

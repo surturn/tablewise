@@ -1,0 +1,135 @@
+[    2055ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:21550
+[    2113ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3699:24)
+    at invokeGuardedCallback (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3733:39)
+[    2122ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3699:24)
+    at invokeGuardedCallback (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3733:39)
+[    2127ms] [ERROR] The above error occurred in the <CartDrawer> component:
+
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:29:82)
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:49:32)
+    at LazyMotion (http://localhost:3000/node_modules/.vite/deps/framer-motion.js?v=731208e1:8367:23)
+    at MotionProvider (http://localhost:3000/src/components/ui/MotionConfig.tsx:23:34)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=73943ab2:3194:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14031
+[    2127ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at beginWork$1 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19753:22)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19198:20)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19137:13)
+[    2161ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[  327746ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3699:24)
+    at invokeGuardedCallback (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3733:39)
+[  327749ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3699:24)
+    at invokeGuardedCallback (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3733:39)
+[  327749ms] [ERROR] The above error occurred in the <CartDrawer> component:
+
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:29:82)
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:49:32)
+    at LazyMotion (http://localhost:3000/node_modules/.vite/deps/framer-motion.js?v=731208e1:8367:23)
+    at MotionProvider (http://localhost:3000/src/components/ui/MotionConfig.tsx:23:34)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=73943ab2:3194:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14031
+[  327750ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at beginWork$1 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19753:22)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19198:20)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19137:13)
+[  348084ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3699:24)
+    at invokeGuardedCallback (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3733:39)
+[  348091ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3699:24)
+    at invokeGuardedCallback (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3733:39)
+[  348091ms] [ERROR] The above error occurred in the <CartDrawer> component:
+
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:29:82)
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:49:32)
+    at LazyMotion (http://localhost:3000/node_modules/.vite/deps/framer-motion.js?v=731208e1:8367:23)
+    at MotionProvider (http://localhost:3000/src/components/ui/MotionConfig.tsx:23:34)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=73943ab2:3194:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14031
+[  348092ms] Error: useNavigate() may be used only in the context of a <Router> component.
+    at invariant (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:209:11)
+    at useNavigateUnstable (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3901:34)
+    at useNavigate (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:3898:46)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:31:20)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at beginWork$1 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19753:22)
+    at performUnitOfWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19198:20)
+    at workLoopSync (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19137:13)
+[  358824ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/staff/login:0

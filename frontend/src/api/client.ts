@@ -8,12 +8,15 @@ import { useAuthStore } from '../store/authStore';
  * Falls back to localhost for local development.
  */
 let _baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+// A missing VITE_API_BASE_URL in production used to throw here - at module-load
+// time, before React even mounts, so no error boundary could catch it and the
+// user just saw a blank white page. Instead, flag it and let main.tsx render a
+// visible, human-readable message; fall back to a harmless placeholder so the
+// rest of module init (creating apiClient below) doesn't also crash.
+export const isApiMisconfigured = import.meta.env.PROD && !_baseUrl;
 if (!_baseUrl) {
-  if (import.meta.env.PROD) {
-    throw new Error('VITE_API_BASE_URL is missing in production environment variables.');
-  } else {
-    _baseUrl = 'http://localhost:8000';
-  }
+  _baseUrl = 'http://localhost:8000';
 }
 const API_URL = _baseUrl.replace(/\/+$/, '');
 

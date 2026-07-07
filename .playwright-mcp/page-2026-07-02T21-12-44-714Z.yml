@@ -1,0 +1,89 @@
+- generic [ref=f6e2]:
+  - generic [ref=f6e142]:
+    - navigation [ref=f6e143]:
+      - generic [ref=f6e145]:
+        - link "TableWise" [ref=f6e147] [cursor=pointer]:
+          - /url: /customer/dashboard
+          - heading "TableWise" [level=1] [ref=f6e148]
+        - generic [ref=f6e149]:
+          - link "Dashboard" [ref=f6e150] [cursor=pointer]:
+            - /url: /customer/dashboard
+          - link "Dine" [ref=f6e151] [cursor=pointer]:
+            - /url: /customer/dine
+          - link "Stay" [ref=f6e152] [cursor=pointer]:
+            - /url: /customer/stay
+          - link "Drink" [ref=f6e153] [cursor=pointer]:
+            - /url: /customer/drink
+        - generic [ref=f6e154]:
+          - button "1" [ref=f6e179] [cursor=pointer]:
+            - img [ref=f6e156]
+            - generic [ref=f6e180]: "1"
+          - button "V" [ref=f6e161] [cursor=pointer]:
+            - generic [ref=f6e162]: V
+    - main [ref=f6e163]:
+      - generic [ref=f6e164]:
+        - generic [ref=f6e165]:
+          - heading "Dine with us" [level=1] [ref=f6e166]
+          - paragraph [ref=f6e167]: Explore the menu and order directly.
+        - button "Mains" [ref=f6e169] [cursor=pointer]
+        - generic [ref=f6e172]:
+          - heading "Ugali & Nyama" [level=3] [ref=f6e174]
+          - generic [ref=f6e175]:
+            - generic [ref=f6e176]: $500.00
+            - button "Add to cart" [active] [ref=f6e177] [cursor=pointer]:
+              - img [ref=f6e178]
+    - generic [ref=f6e182]:
+      - generic [ref=f6e183]:
+        - button [ref=f6e184] [cursor=pointer]:
+          - img [ref=f6e185]
+        - heading "Your Cart" [level=2] [ref=f6e187]
+      - generic [ref=f6e190]:
+        - generic [ref=f6e191]:
+          - generic [ref=f6e192]: 1x
+          - generic [ref=f6e193]:
+            - paragraph [ref=f6e194]: Ugali & Nyama
+            - paragraph [ref=f6e195]: $500.00
+        - generic [ref=f6e196]:
+          - button "-" [ref=f6e197] [cursor=pointer]
+          - button "+" [ref=f6e198] [cursor=pointer]
+      - generic [ref=f6e199]:
+        - generic [ref=f6e200]:
+          - generic [ref=f6e201]: Total
+          - generic [ref=f6e202]: $500.00
+        - button "Go to Checkout" [ref=f6e203] [cursor=pointer]
+  - generic [ref=f6e206]:
+    - generic [ref=f6e207]:
+      - heading "Your Cart" [level=2] [ref=f6e208]:
+        - img [ref=f6e209]
+        - text: Your Cart
+      - button [ref=f6e212] [cursor=pointer]:
+        - img [ref=f6e213]
+    - generic [ref=f6e217]:
+      - generic [ref=f6e218]:
+        - heading "Ugali & Nyama" [level=4] [ref=f6e219]
+        - paragraph [ref=f6e220]: $500.00
+      - generic [ref=f6e221]:
+        - button [ref=f6e222] [cursor=pointer]:
+          - img [ref=f6e223]
+        - generic [ref=f6e224]: "1"
+        - button [ref=f6e225] [cursor=pointer]:
+          - img [ref=f6e226]
+    - generic [ref=f6e227]:
+      - generic [ref=f6e228]:
+        - generic [ref=f6e229]: Total
+        - generic [ref=f6e230]: $500.00
+      - generic [ref=f6e231]:
+        - generic [ref=f6e232]:
+          - text: Full Name
+          - textbox [ref=f6e233]
+        - generic [ref=f6e234]:
+          - text: Phone Number
+          - textbox [ref=f6e235]
+        - generic [ref=f6e236]:
+          - button "M-Pesa" [ref=f6e237] [cursor=pointer]:
+            - img [ref=f6e238]
+            - text: M-Pesa
+          - button "Cash" [ref=f6e240] [cursor=pointer]:
+            - img [ref=f6e241]
+            - text: Cash
+        - button "Place Order" [ref=f6e244] [cursor=pointer]

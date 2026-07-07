@@ -1,0 +1,6 @@
+[     174ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:21550
+[     403ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/staff/login:0
+[   16348ms] [LOG] Submitting login for: smoke-owner@tablewise.com @ http://localhost:3000/src/pages/Auth/StaffLogin.tsx:35
+[   16597ms] [LOG] Response access_token received @ http://localhost:3000/src/pages/Auth/StaffLogin.tsx:38
+[   16610ms] [LOG] Auth success for user: {email: smoke-owner@tablewise.com, full_name: Smoke Owner, phone_number: 0700000001, is_active: true, id: 9df8830d-3c18-4952-8451-822888d56259} @ http://localhost:3000/src/pages/Auth/StaffLogin.tsx:42
+[   16727ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/login:0

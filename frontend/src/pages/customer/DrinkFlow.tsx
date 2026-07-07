@@ -72,7 +72,7 @@ const DrinkFlow: React.FC = () => {
       items: tabItems.map(i => ({
         menu_item_id: i.item.id,
         quantity: i.quantity,
-        unit_price: i.item.price_usd_cents / 100,
+        unit_price: i.item.price_kes_cents / 100,
         special_instructions: ''
       })),
       payment_method: 'cash', // TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx)
@@ -101,7 +101,7 @@ const DrinkFlow: React.FC = () => {
     }
   };
 
-  const total = tabItems.reduce((acc, i) => acc + (i.item.price_usd_cents * i.quantity), 0) / 100;
+  const total = tabItems.reduce((acc, i) => acc + (i.item.price_kes_cents * i.quantity), 0) / 100;
 
   if (placedOrder) {
     return (
@@ -123,7 +123,7 @@ const DrinkFlow: React.FC = () => {
             <div className="bg-stone-50 rounded-2xl p-6 mb-8 text-left border border-stone-100 flex justify-between items-center">
               <div>
                 <p className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">Amount Paid</p>
-                <p className="font-black text-2xl text-brand-dark">${(placedOrder.total_usd_cents / 100).toFixed(2)}</p>
+                <p className="font-black text-2xl text-brand-dark">KSh {(placedOrder.total_kes_cents / 100).toFixed(2)}</p>
               </div>
               <div className="bg-white p-3 rounded-xl shadow-sm">
                 <CreditCard className="text-stone-400" />
@@ -159,14 +159,14 @@ const DrinkFlow: React.FC = () => {
                     <p className="font-bold text-stone-800">{item.item.name}</p>
                     <p className="text-sm text-stone-500">Qty: {item.quantity}</p>
                   </div>
-                  <span className="font-bold">${((item.item.price_usd_cents * item.quantity) / 100).toFixed(2)}</span>
+                  <span className="font-bold">KSh {((item.item.price_kes_cents * item.quantity) / 100).toFixed(2)}</span>
                 </div>
               ))}
             </div>
             
             <div className="bg-stone-50 p-6 rounded-2xl mb-8 flex justify-between items-center">
               <span className="font-bold text-stone-600">Total Amount</span>
-              <span className="text-3xl font-black text-brand-dark">${total.toFixed(2)}</span>
+              <span className="text-3xl font-black text-brand-dark">KSh {total.toFixed(2)}</span>
             </div>
 
             {/* TODO: wire up real M-Pesa STK push for this flow (see CartDrawer.tsx) */}
@@ -194,7 +194,7 @@ const DrinkFlow: React.FC = () => {
                 disabled={isPlacing}
                 className="flex-[2] py-4 bg-brand-dark text-white font-bold rounded-xl hover:bg-black transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center"
               >
-                {isPlacing ? 'Processing...' : `Pay $${total.toFixed(2)}`}
+                {isPlacing ? 'Processing...' : `Pay KSh ${total.toFixed(2)}`}
               </button>
             </div>
           </AnimatedPage>
@@ -234,7 +234,7 @@ const DrinkFlow: React.FC = () => {
                     id={item.id}
                     name={item.name}
                     description={item.description}
-                    priceUsdCents={item.price_usd_cents}
+                    priceKesCents={item.price_kes_cents}
                     imageUrl={item.image_url}
                     isAvailable={item.is_available}
                     onAdd={() => addToTab(item)}
@@ -271,7 +271,7 @@ const DrinkFlow: React.FC = () => {
               <div className="flex items-center gap-6">
                 <div className="text-right hidden sm:block">
                   <p className="text-xs font-bold text-stone-400 uppercase tracking-wider">Total</p>
-                  <p className="font-black text-2xl text-brand-dark">${total.toFixed(2)}</p>
+                  <p className="font-black text-2xl text-brand-dark">KSh {total.toFixed(2)}</p>
                 </div>
                 <button
                   onClick={() => setIsCheckout(true)}

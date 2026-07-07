@@ -1,0 +1,25 @@
+- generic [ref=f7e3]:
+  - navigation [ref=f7e4]:
+    - generic [ref=f7e6]:
+      - link "TableWise" [ref=f7e8] [cursor=pointer]:
+        - /url: /customer/dashboard
+        - heading "TableWise" [level=1] [ref=f7e9]
+      - generic [ref=f7e10]:
+        - link "Dashboard" [ref=f7e11] [cursor=pointer]:
+          - /url: /customer/dashboard
+        - link "Dine" [ref=f7e12] [cursor=pointer]:
+          - /url: /customer/dine
+        - link "Stay" [ref=f7e13] [cursor=pointer]:
+          - /url: /customer/stay
+        - link "Drink" [ref=f7e14] [cursor=pointer]:
+          - /url: /customer/drink
+      - generic [ref=f7e15]:
+        - button "1" [ref=f7e16] [cursor=pointer]:
+          - img [ref=f7e17]
+          - generic [ref=f7e21]: "1"
+        - button "V" [ref=f7e23] [cursor=pointer]:
+          - generic [ref=f7e24]: V
+  - main [ref=f7e25]:
+    - generic [ref=f7e27]:
+      - heading "Dine with us" [level=1] [ref=f7e28]
+      - paragraph [ref=f7e29]: Explore the menu and order directly.

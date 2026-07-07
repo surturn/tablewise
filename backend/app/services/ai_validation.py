@@ -16,7 +16,7 @@ class ReorderLine(BaseModel):
 class InventoryForecast(BaseModel):
     branch_id: str = Field(..., min_length=8)
     horizon_days: int = Field(7, ge=1, le=30)
-    currency: Literal["USD"] = "USD"
+    currency: Literal["KES"] = "KES"
     recommendations: list[ReorderLine] = Field(default_factory=list, max_length=50)
     data_quality_notes: list[str] = Field(default_factory=list, max_length=10)
 

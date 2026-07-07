@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface CartItem {
   menu_item_id: string;
   name: string;
-  price_usd_cents: number;
+  price_kes_cents: number;
   quantity: number;
   special_instructions?: string;
   outlet_id?: string;
@@ -74,7 +74,7 @@ export const useCartStore = create<CartState>()(
       clearCart: () => set({ items: [], outlet_id: null }),
 
       getTotalCents: () => {
-        return get().items.reduce((total, item) => total + item.price_usd_cents * item.quantity, 0);
+        return get().items.reduce((total, item) => total + item.price_kes_cents * item.quantity, 0);
       },
     }),
     {

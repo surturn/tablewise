@@ -1,0 +1,54 @@
+- generic [ref=f3e2]:
+  - generic [ref=f3e18]:
+    - generic [ref=f3e19]:
+      - generic [ref=f3e21]: TableWise
+      - generic [ref=f3e22]:
+        - link "Overview" [ref=f3e23] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=f3e25]
+          - text: Overview
+        - link "Orders (POS)" [ref=f3e30] [cursor=pointer]:
+          - /url: /dashboard/orders
+          - img [ref=f3e31]
+          - text: Orders (POS)
+        - link "Rooms" [ref=f3e34] [cursor=pointer]:
+          - /url: /dashboard/rooms
+          - img [ref=f3e35]
+          - text: Rooms
+        - link "Bookings" [ref=f3e38] [cursor=pointer]:
+          - /url: /dashboard/reservations
+          - img [ref=f3e39]
+          - text: Bookings
+        - link "Housekeeping" [ref=f3e42] [cursor=pointer]:
+          - /url: /dashboard/housekeeping
+          - img [ref=f3e43]
+          - text: Housekeeping
+        - link "Inventory" [ref=f3e48] [cursor=pointer]:
+          - /url: /dashboard/inventory
+          - img [ref=f3e49]
+          - text: Inventory
+        - link "Guests" [ref=f3e53] [cursor=pointer]:
+          - /url: /dashboard/customers
+          - img [ref=f3e54]
+          - text: Guests
+        - link "Analytics" [ref=f3e59] [cursor=pointer]:
+          - /url: /dashboard/analytics
+          - img [ref=f3e60]
+          - text: Analytics
+      - generic [ref=f3e63]:
+        - generic [ref=f3e65]:
+          - paragraph [ref=f3e66]: Smoke Owner
+          - paragraph [ref=f3e67]: owner
+        - button "Logout" [ref=f3e68] [cursor=pointer]:
+          - img [ref=f3e69]
+          - text: Logout
+    - generic [ref=f3e72]:
+      - banner [ref=f3e73]:
+        - heading "Overview" [level=1] [ref=f3e75]
+        - generic [ref=f3e77]: S
+      - main [ref=f3e78]
+  - generic [ref=f3e109]:
+    - img [ref=f3e111]
+    - paragraph [ref=f3e114]: Welcome back, Smoke Owner!
+    - button [ref=f3e115] [cursor=pointer]:
+      - img [ref=f3e116]

@@ -4,14 +4,14 @@ import { useCartStore } from './cartStore';
 const burger = {
   menu_item_id: 'item-1',
   name: 'Cheeseburger',
-  price_usd_cents: 1200,
+  price_kes_cents: 1200,
   quantity: 1,
 };
 
 const fries = {
   menu_item_id: 'item-2',
   name: 'Fries',
-  price_usd_cents: 400,
+  price_kes_cents: 400,
   quantity: 1,
 };
 

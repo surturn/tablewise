@@ -10,7 +10,7 @@ export interface BookingGuest {
 
 export interface BookingExtra {
   name: string;
-  price_usd_cents: number;
+  price_kes_cents: number;
 }
 
 export interface Booking {
@@ -20,8 +20,8 @@ export interface Booking {
   check_in: string;
   check_out: string;
   status: 'pending' | 'confirmed' | 'checked_in' | 'checked_out' | 'cancelled';
-  total_usd_cents: number;
-  payment_status: 'unpaid' | 'partial' | 'paid' | 'refunded';
+  total_kes_cents: number;
+  payment_status: 'unpaid' | 'partial' | 'paid' | 'failed' | 'refunded';
   notes?: string;
   extras: BookingExtra[];
   room?: any;

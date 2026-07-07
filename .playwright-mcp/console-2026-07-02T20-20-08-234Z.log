@@ -1,0 +1,75 @@
+[      43ms] [ERROR] WebSocket connection to 'ws://localhost:3000/?token=7HFJCmi5MJH1' failed: Error during WebSocket handshake: Unexpected response code: 400 @ http://localhost:3000/@vite/client:535
+[      58ms] [ERROR] WebSocket connection to 'ws://localhost:3000/?token=7HFJCmi5MJH1' failed: Error during WebSocket handshake: Unexpected response code: 400 @ http://localhost:3000/@vite/client:535
+[      58ms] [ERROR] [vite] failed to connect to websocket.
+your current setup:
+  (browser) localhost:3000/ <--[HTTP]--> localhost:3000/ (server)
+  (browser) localhost:3000/ <--[WebSocket (failing)]--> localhost:3000/ (server)
+Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr . @ http://localhost:3000/@vite/client:511
+[     118ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:21550
+[     160ms] [ERROR] Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem. @ http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:135
+[     161ms] [ERROR] Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem. @ http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:135
+[     161ms] TypeError: Cannot read properties of null (reading 'useContext')
+    at Object.useContext (http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:1062:29)
+    at useIsRestoring (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3209:35)
+    at useBaseQuery (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3378:23)
+    at useQuery (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3457:10)
+    at useOrderPaymentStatus (http://localhost:3000/src/api/checkout.ts:39:10)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:37:34)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+[     169ms] [ERROR] Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem. @ http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:135
+[     169ms] [ERROR] Warning: Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://reactjs.org/link/invalid-hook-call for tips about how to debug and fix this problem. @ http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:135
+[     170ms] TypeError: Cannot read properties of null (reading 'useContext')
+    at Object.useContext (http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:1062:29)
+    at useIsRestoring (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3209:35)
+    at useBaseQuery (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3378:23)
+    at useQuery (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3457:10)
+    at useOrderPaymentStatus (http://localhost:3000/src/api/checkout.ts:39:10)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:37:34)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:3674:22)
+[     172ms] [ERROR] The above error occurred in the <CartDrawer> component:
+
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:29:82)
+    at Router (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:4544:15)
+    at BrowserRouter (http://localhost:3000/node_modules/.vite/deps/react-router-dom.js?v=5a8e7331:5290:5)
+    at AppRouter
+    at AuthProvider (http://localhost:3000/src/contexts/AuthContext.tsx:49:32)
+    at LazyMotion (http://localhost:3000/node_modules/.vite/deps/framer-motion.js?v=731208e1:8367:23)
+    at MotionProvider (http://localhost:3000/src/components/ui/MotionConfig.tsx:23:34)
+    at QueryClientProvider (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=73943ab2:3194:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14031
+[     173ms] TypeError: Cannot read properties of null (reading 'useContext')
+    at Object.useContext (http://localhost:3000/node_modules/.vite/deps/chunk-VJA5E53X.js?v=8dedb99b:1062:29)
+    at useIsRestoring (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3209:35)
+    at useBaseQuery (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3378:23)
+    at useQuery (http://localhost:3000/node_modules/.vite/deps/@tanstack_react-query.js?v=f8a57b4e:3457:10)
+    at useOrderPaymentStatus (http://localhost:3000/src/api/checkout.ts:39:10)
+    at CartDrawer (http://localhost:3000/src/components/Cart/CartDrawer.tsx:37:34)
+    at renderWithHooks (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:11548:26)
+    at mountIndeterminateComponent (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:14926:21)
+    at beginWork (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:15914:22)
+    at beginWork$1 (http://localhost:3000/node_modules/.vite/deps/chunk-REK4FMSP.js?v=16e17af7:19753:22)

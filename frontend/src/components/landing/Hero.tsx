@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 export const Hero: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative min-h-[90vh] flex items-center bg-[#1e2024] overflow-hidden">
       {/* Background Gold Banner */}
@@ -43,14 +46,16 @@ export const Hero: React.FC = () => {
           </h1>
 
           <div className="flex gap-4">
-            <motion.button 
+            <motion.button
+              onClick={() => navigate('/menu')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3 rounded-md bg-[#e3342f] text-white font-bold tracking-wide shadow-lg hover:bg-red-700 transition-colors"
             >
               View Menu
             </motion.button>
-            <motion.button 
+            <motion.button
+              onClick={() => navigate('/menu')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-8 py-3 rounded-md bg-[#d4af37] text-gray-900 font-bold tracking-wide shadow-lg hover:bg-yellow-500 transition-colors"

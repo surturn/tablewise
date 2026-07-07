@@ -1,7 +1,12 @@
 import { Outlet, Link } from 'react-router-dom';
 import { ShoppingCart, Menu as MenuIcon, User } from 'lucide-react';
+import { useCartStore } from '../../store/cartStore';
 
 export default function CustomerLayout() {
+  const items = useCartStore((state) => state.items);
+  const toggleCart = useCartStore((state) => state.toggleCart);
+  const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 font-sans transition-colors duration-300">
       {/* Header */}
@@ -24,9 +29,16 @@ export default function CustomerLayout() {
             </nav>
 
             <div className="flex items-center gap-4">
-              <button className="p-2 relative text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">
+              <button
+                onClick={toggleCart}
+                className="p-2 relative text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors"
+              >
                 <ShoppingCart size={24} />
-                <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-blue-600 border-2 border-white dark:border-neutral-900"></span>
+                {itemCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-brand-orange text-white text-[10px] font-bold flex items-center justify-center border-2 border-white dark:border-neutral-900">
+                    {itemCount}
+                  </span>
+                )}
               </button>
               <Link to="/login" className="p-2 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white transition-colors">
                 <User size={24} />

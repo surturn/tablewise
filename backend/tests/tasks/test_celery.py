@@ -16,15 +16,15 @@ def test_mock_sms_task():
 
 
 def test_mock_ai_forecast_task(monkeypatch):
-    """Unit test: Verify the AI Forecast Celery task executes its mock branch without calling Anthropic."""
-
-    # Temporarily override the real API key with the expected mock string
-    monkeypatch.setattr(settings, "ANTHROPIC_API_KEY", "mock_key")
-
-    assert settings.ANTHROPIC_API_KEY == "mock_key"
-
-    # Mock branch (ENVIRONMENT=="development" and ANTHROPIC_API_KEY=="mock_key") short-circuits
-    # before calling Anthropic and returns an empty forecast list.
+    """Unit test: Verify the AI Forecast Celery task executes its mock branch without calling OpenAI."""
+    # Temporarily override settings
+    monkeypatch.setattr(settings, "ENVIRONMENT", "development")
+    monkeypatch.setattr(settings, "OPENAI_API_KEY", "mock_key")
+    
+    assert settings.OPENAI_API_KEY == "mock_key"
+    
+    # Mock branch (ENVIRONMENT=="development" and OPENAI_API_KEY=="mock_key") short-circuits
+    # before calling OpenAI and returns an empty forecast list.
     result = generate_inventory_forecast("outlet-uuid-123", "Sold 50 burgers yesterday.")
 
     assert result == []

@@ -92,14 +92,14 @@ const DineFlow: React.FC = () => {
                     id={item.id}
                     name={item.name}
                     description={item.description}
-                    priceUsdCents={item.price_usd_cents}
+                    priceKesCents={item.price_kes_cents}
                     imageUrl={item.image_url}
                     isAvailable={item.is_available}
                     onAdd={() => {
                       addItem({
                         menu_item_id: item.id,
                         name: item.name,
-                        price_usd_cents: item.price_usd_cents,
+                        price_kes_cents: item.price_kes_cents,
                         quantity: 1,
                         outlet_id: outletId || undefined
                       });

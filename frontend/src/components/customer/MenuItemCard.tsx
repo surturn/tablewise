@@ -7,7 +7,7 @@ interface MenuItemCardProps {
   id: string;
   name: string;
   description?: string;
-  priceUsdCents: number;
+  priceKesCents: number;
   imageUrl?: string;
   isAvailable: boolean;
   onAdd: () => void;
@@ -15,9 +15,9 @@ interface MenuItemCardProps {
 }
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ 
-  name, description, priceUsdCents, imageUrl, isAvailable, onAdd, delay = 0 
+  name, description, priceKesCents, imageUrl, isAvailable, onAdd, delay = 0 
 }) => {
-  const price = (priceUsdCents / 100).toFixed(2);
+  const price = (priceKesCents / 100).toFixed(2);
 
   return (
     <m.div
@@ -34,7 +34,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           )}
         </div>
         <div className="flex items-center justify-between mt-4">
-          <span className="font-bold text-brand-dark">${price}</span>
+          <span className="font-bold text-brand-dark">KSh {price}</span>
           <button
             onClick={onAdd}
             disabled={!isAvailable}

@@ -106,7 +106,7 @@ const OrdersFeed: React.FC = () => {
                     {order.items?.map((item: any) => (
                       <li key={item.id} className="flex justify-between text-sm">
                         <span className="font-medium text-brand-dark">{item.quantity}x {item.menu_item?.name || 'Item'}</span>
-                        <span className="text-stone-500">${((item.price_usd_cents * item.quantity) / 100).toFixed(2)}</span>
+                        <span className="text-stone-500">KSh {((item.price_kes_cents * item.quantity) / 100).toFixed(2)}</span>
                       </li>
                     ))}
                   </ul>
@@ -115,7 +115,7 @@ const OrdersFeed: React.FC = () => {
                 <div className="flex justify-between items-center pt-4 border-t border-stone-100">
                   <div>
                     <span className="text-xs text-stone-500 block mb-1">Total Amount</span>
-                    <span className="font-black text-xl text-brand-dark">${(order.total_usd_cents / 100).toFixed(2)}</span>
+                    <span className="font-black text-xl text-brand-dark">KSh {(order.total_kes_cents / 100).toFixed(2)}</span>
                   </div>
                   
                   <div className="flex gap-2">

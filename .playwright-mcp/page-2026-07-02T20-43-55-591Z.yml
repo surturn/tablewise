@@ -1,0 +1,59 @@
+- generic [ref=f3e2]:
+  - generic [ref=f3e28]:
+    - navigation [ref=f3e29]:
+      - generic [ref=f3e31]:
+        - link "TableWise" [ref=f3e33] [cursor=pointer]:
+          - /url: /customer/dashboard
+          - heading "TableWise" [level=1] [ref=f3e34]
+        - generic [ref=f3e35]:
+          - link "Dashboard" [ref=f3e36] [cursor=pointer]:
+            - /url: /customer/dashboard
+          - link "Dine" [ref=f3e37] [cursor=pointer]:
+            - /url: /customer/dine
+          - link "Stay" [ref=f3e38] [cursor=pointer]:
+            - /url: /customer/stay
+          - link "Drink" [ref=f3e39] [cursor=pointer]:
+            - /url: /customer/drink
+        - generic [ref=f3e40]:
+          - button [ref=f3e41] [cursor=pointer]:
+            - img [ref=f3e42]
+          - button "V" [ref=f3e47] [cursor=pointer]:
+            - generic [ref=f3e48]: V
+    - main [ref=f3e49]:
+      - generic [ref=f3e50]:
+        - generic [ref=f3e51]:
+          - heading "Welcome back, Verify" [level=1] [ref=f3e52]
+          - paragraph [ref=f3e53]: Here's what's happening with your stay.
+        - generic [ref=f3e54]:
+          - generic [ref=f3e55]:
+            - img [ref=f3e58]
+            - heading "0" [level=3] [ref=f3e61]
+            - paragraph [ref=f3e62]: Active Food Orders
+          - generic [ref=f3e63]:
+            - img [ref=f3e66]
+            - heading "0" [level=3] [ref=f3e68]
+            - paragraph [ref=f3e69]: Current Stays
+          - generic [ref=f3e70]:
+            - img [ref=f3e73]
+            - heading "0" [level=3] [ref=f3e76]
+            - paragraph [ref=f3e77]: Open Bar Tabs
+        - generic [ref=f3e78]:
+          - generic [ref=f3e80]:
+            - generic [ref=f3e81]:
+              - heading "Recent Activity" [level=2] [ref=f3e82]
+              - generic [ref=f3e83] [cursor=pointer]: View All
+            - paragraph [ref=f3e86]: No active orders or bookings right now.
+          - generic [ref=f3e88]:
+            - heading "Grand Platform Rewards" [level=2] [ref=f3e89]
+            - paragraph [ref=f3e90]: Earn points on every order and booking.
+            - generic [ref=f3e91]:
+              - generic [ref=f3e92]:
+                - generic [ref=f3e93]: Available Points
+                - generic [ref=f3e94]: 1,250
+              - paragraph [ref=f3e97]: 750 points to Gold Tier
+            - button "Redeem Rewards" [ref=f3e98] [cursor=pointer]
+  - generic [ref=f3e99]:
+    - img [ref=f3e101]
+    - paragraph [ref=f3e104]: Welcome to TableWise, Verify Guest!
+    - button [ref=f3e105] [cursor=pointer]:
+      - img [ref=f3e106]

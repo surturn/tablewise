@@ -50,7 +50,7 @@ const ReservationsPage: React.FC = () => {
                 <td className="px-6 py-4 text-xs text-stone-500">
                   {new Date(booking.check_in).toLocaleDateString()} - {new Date(booking.check_out).toLocaleDateString()}
                 </td>
-                <td className="px-6 py-4 font-medium">${(booking.total_usd_cents / 100).toFixed(2)}</td>
+                <td className="px-6 py-4 font-medium">KSh {(booking.total_kes_cents / 100).toFixed(2)}</td>
                 <td className="px-6 py-4">
                   <StatusBadge status={booking.status} />
                   <div className="mt-1"><StatusBadge status={booking.payment_status} /></div>

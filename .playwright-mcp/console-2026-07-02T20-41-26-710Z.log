@@ -1,0 +1,10 @@
+[    5932ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/favicon.ico:0
+[    6001ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:5173/login:0
+[  148145ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8000/api/v1/api/v1/orders/:0
+[  148146ms] [ERROR] Failed to load dashboard data AxiosError: Request failed with status code 404
+    at Eb (http://localhost:5173/assets/index-R2ElYIgM.js:338:1085)
+    at XMLHttpRequest.x (http://localhost:5173/assets/index-R2ElYIgM.js:338:6046)
+    at qr.request (http://localhost:5173/assets/index-R2ElYIgM.js:340:2085)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/assets/index-R2ElYIgM.js:344:58560 @ http://localhost:5173/assets/index-R2ElYIgM.js:343
+[  148146ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8000/api/v1/api/v1/bookings/:0

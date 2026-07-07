@@ -23,11 +23,11 @@ async def test_create_and_list_menu(async_client: AsyncClient, test_owner: User)
     assert cat_resp.status_code == 201
     category_id = cat_resp.json()["id"]
 
-    # 2. Create a Menu Item (schema requires price_usd_cents and outlet_id, not price)
+    # 2. Create a Menu Item (schema requires price_kes_cents and outlet_id, not price)
     item_payload = {
         "name": "Nyama Choma",
         "description": "Grilled goat meat",
-        "price_usd_cents": 120000,
+        "price_kes_cents": 120000,
         "category_id": category_id,
         "outlet_id": outlet_id,
     }

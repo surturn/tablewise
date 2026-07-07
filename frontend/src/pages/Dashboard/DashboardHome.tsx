@@ -26,7 +26,7 @@ const DashboardHome: React.FC = () => {
   }
 
   const overview = data || {
-    total_revenue_usd_cents: 0,
+    total_revenue_kes_cents: 0,
     total_orders: 0,
     active_customers: 0,
     occupancy_rate: 0,
@@ -37,7 +37,7 @@ const DashboardHome: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Revenue (Today)"
-          value={`$${(overview.total_revenue_usd_cents / 100).toFixed(2)}`}
+          value={`KSh ${(overview.total_revenue_kes_cents / 100).toFixed(2)}`}
           icon={<DollarSign size={24} />}
           trend={{ value: 12, isPositive: true }}
           delay={0.1}

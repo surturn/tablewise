@@ -6,7 +6,7 @@ interface TicketItem {
   id: string;
   name: string;
   quantity: number;
-  price_usd_cents: number;
+  price_kes_cents: number;
   voided?: boolean;
 }
 
@@ -33,7 +33,7 @@ export function OrderTicket({
   onVoidItem,
   className
 }: OrderTicketProps) {
-  const subtotal = items.reduce((acc, item) => item.voided ? acc : acc + (item.price_usd_cents * item.quantity), 0);
+  const subtotal = items.reduce((acc, item) => item.voided ? acc : acc + (item.price_kes_cents * item.quantity), 0);
 
   return (
     <div className={cn("bg-white border border-neutral-200 rounded-lg shadow-sm flex flex-col", className)}>
@@ -65,7 +65,7 @@ export function OrderTicket({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-neutral-600">${((item.price_usd_cents * item.quantity) / 100).toFixed(2)}</span>
+                <span className="text-neutral-600">KSh {((item.price_kes_cents * item.quantity) / 100).toFixed(2)}</span>
                 {onVoidItem && !item.voided && status === 'pending' && (
                   <button onClick={() => onVoidItem(item.id)} className="text-red-500 hover:text-red-700">
                     <Trash2 size={16} />
@@ -81,7 +81,7 @@ export function OrderTicket({
       <div className="p-4 border-t border-neutral-100 bg-neutral-50 rounded-b-lg">
         <div className="flex justify-between items-center mb-4">
           <span className="font-semibold text-neutral-700">Total</span>
-          <span className="font-bold text-xl text-neutral-900">${(subtotal / 100).toFixed(2)}</span>
+          <span className="font-bold text-xl text-neutral-900">KSh {(subtotal / 100).toFixed(2)}</span>
         </div>
         {onUpdateStatus && status === 'pending' && (
           <button 

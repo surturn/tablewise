@@ -53,14 +53,14 @@ async def _get_access_token() -> str:
 async def initiate_stk_push(
     db: AsyncSession,
     phone_number: str,
-    amount_usd_cents: int,
+    amount_kes_cents: int,
     entity_type: PaymentEntityType,
     entity_id: uuid.UUID,
 ) -> dict[str, Any]:
-    if amount_usd_cents <= 0:
+    if amount_kes_cents <= 0:
         raise HTTPException(status_code=400, detail="Payment amount must be positive")
 
-    amount = max(1, round(amount_usd_cents / 100))
+    amount = max(1, round(amount_kes_cents / 100))
 
     if _is_mock_mode():
         checkout_request_id = f"mock_ws_CO_{uuid.uuid4().hex[:16]}"
@@ -99,7 +99,7 @@ async def initiate_stk_push(
     payment = Payment(
         entity_type=entity_type,
         entity_id=entity_id,
-        amount_usd_cents=amount_usd_cents,
+        amount_kes_cents=amount_kes_cents,
         method=PaymentMethod.mpesa,
         status=PaymentStatus.pending,
         mpesa_checkout_request_id=checkout_request_id,
@@ -112,7 +112,7 @@ async def initiate_stk_push(
     return {
         "checkout_request_id": checkout_request_id,
         "merchant_request_id": merchant_request_id,
-        "amount_usd_cents": amount_usd_cents,
+        "amount_kes_cents": amount_kes_cents,
     }
 
 
@@ -148,7 +148,7 @@ async def handle_mpesa_callback(db: AsyncSession, payload: dict[str, Any]) -> di
     if result_code == 0:
         items = _callback_items(callback)
         callback_amount = items.get("Amount")
-        expected_amount = max(1, round(payment.amount_usd_cents / 100))
+        expected_amount = max(1, round(payment.amount_kes_cents / 100))
 
         if callback_amount is not None and round(float(callback_amount)) != expected_amount:
             logger.error(
